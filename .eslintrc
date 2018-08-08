@@ -1,0 +1,7 @@
+{
+    "extends": "react-app",
+    "rules": {
+        "indent": ["warn", 4],
+        "semi": ["warn", "never"]
+    }
+}
