@@ -3,9 +3,9 @@ import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import Paper from '@material-ui/core/Paper'
 import Grid from '@material-ui/core/Grid'
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemText from '@material-ui/core/ListItemText'
 import Button from '@material-ui/core/Button'
 
 import PageToken from './page-token.js'
@@ -29,7 +29,7 @@ const styles = theme => ({
     listItemText: {
         textAlign: 'left',
     }
-});
+})
 
 class PagePlaygrounds extends React.Component {
     constructor(props) {
@@ -77,6 +77,22 @@ class PagePlaygrounds extends React.Component {
                         <PageNewExam />
                         <br />
                         <PageNewExam busy={true} />
+                        <br />
+                        <PageNewExam
+                            clientNameError="Você deve informar o nome do cara!"
+                            phoneError="Telefone é inválido!"
+                            emailError="E-mail é inválido!"
+                            datetime="09/08/2018 13:00"
+                        />
+                        <br />
+                        <PageNewExam
+                            clientName="Lorem Ipsum"
+                            datetime="09/08/2018 13:00"
+                            phone="(47) 98877-5544"
+                            email="lorem@ipsum.com.br"
+                            extraPhones={ ['(47) 12345-6789'] }
+                            extraEmails={ ['extra@eventials.com'] }
+                        />
                     </React.Fragment>
                 )
             }
@@ -121,7 +137,7 @@ class PagePlaygrounds extends React.Component {
                         </Paper>
                     </Grid>
 
-                    <Grid item xs={4}>
+                    <Grid item xs={5}>
                         {pageToRender()}
                     </Grid>
                 </Grid>

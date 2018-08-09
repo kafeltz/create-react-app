@@ -68,7 +68,7 @@ const styles = theme => {
             alignItems: 'center',
         },
         inputDate: {
-            width: 155,
+            width: 160,
             marginRight: theme.spacing.unit * 1,
         },
         inputTime: {
@@ -150,23 +150,37 @@ TextMaskCustom.propTypes = {
     inputRef: PropTypes.func.isRequired,
 }
 
+const aaaammdd = ddmmaaaa => {
+    return ddmmaaaa.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1')
+}
+
 class NewExam extends React.Component {
     constructor(props) {
         super(props)
 
         this.state = {
             busy: props.busy,
-            extraPhones: props.extraPhones,
+            clientName: props.clientName,
+            clientNameError: props.clientNameError,
+            date: aaaammdd(props.datetime.split(' ')[0]),
+            email: props.email,
+            emailError: props.emailError,
             extraEmails: props.extraEmails,
-            phone: '',
+            extraPhones: props.extraPhones,
+            phone: props.phone,
+            phoneError: props.phoneError,
+            time: props.datetime.split(' ')[1],
         }
 
-        this.handleAddPhone = this.handleAddPhone.bind(this)
-        this.handleRemovePhone = this.handleRemovePhone.bind(this)
         this.handleAddEmail = this.handleAddEmail.bind(this)
-        this.handleRemoveEmail = this.handleRemoveEmail.bind(this)
-        this.handlePhoneChanged = this.handlePhoneChanged.bind(this)
+        this.handleAddPhone = this.handleAddPhone.bind(this)
+        this.handleClientChanged = this.handleClientChanged.bind(this)
+        this.handleDataChanged = this.handleDataChanged.bind(this)
         this.handleExtraPhoneChanged = this.handleExtraPhoneChanged.bind(this)
+        this.handlePhoneChanged = this.handlePhoneChanged.bind(this)
+        this.handleRemoveEmail = this.handleRemoveEmail.bind(this)
+        this.handleRemovePhone = this.handleRemovePhone.bind(this)
+        this.handleTimeChanged = this.handleTimeChanged.bind(this)
     }
 
     handlePhoneChanged(e) {
@@ -238,9 +252,52 @@ class NewExam extends React.Component {
         this.setState({ extraPhones: extraPhones })
     }
 
+    handleDataChanged(e) {
+        e.stopPropagation()
+
+        const value = e.currentTarget.value
+
+        this.setState({
+            date: value,
+        })
+    }
+
+    handleTimeChanged(e) {
+        e.stopPropagation()
+
+        const value = e.currentTarget.value
+
+        this.setState({
+            time: value,
+        })
+    }
+
+    handleClientChanged(e) {
+        e.stopPropagation()
+
+        const value = e.currentTarget.value
+
+        this.setState({
+            clientName: value,
+        })
+    }
+
     render() {
         const { classes } = this.props
-        const { busy, extraPhones, extraEmails, phone } = this.state
+
+        const {
+            busy,
+            clientName,
+            clientNameError,
+            date,
+            email,
+            emailError,
+            extraEmails,
+            extraPhones,
+            phone,
+            phoneError,
+            time,
+        } = this.state
 
         const phones = extraPhones.map((p, index) => {
             const { extraPhones } = this.state
@@ -264,7 +321,7 @@ class NewExam extends React.Component {
             return (
                 <div className={classes.inputWithAddIcon} key={`email_key_${index}`}>
                     <FormControl>
-                        <Input className={classes.email} placeholder="exemplo@exemplo.com" />
+                        <Input className={classes.email} placeholder="exemplo@exemplo.com" value={e} />
                         <FormHelperText error id="name-error-text"></FormHelperText>
                     </FormControl>
 
@@ -311,7 +368,11 @@ class NewExam extends React.Component {
                                                     Nome completo do paciente para identificá-lo no dia do exame
                                                 </Typography>
                                             </div>
-                                            <Input className={classes.input} />
+
+                                            <FormControl error={clientNameError.length !== 0}>
+                                                <Input className={classes.input} value={clientName} onChange={this.handleClientChanged} />
+                                                <FormHelperText error={clientNameError.length !== 0}>{clientNameError}</FormHelperText>
+                                            </FormControl>
                                         </div>
 
                                         <div className={classes.field}>
@@ -326,9 +387,9 @@ class NewExam extends React.Component {
                                             </div>
 
                                             <div className={classes.dateAndTime}>
-                                                <Input type="date" className={classes.inputDate} />
+                                                <Input type="date" className={classes.inputDate} value={date} onChange={this.handleDataChanged} />
 
-                                                <Input type="time" className={classes.inputTime} />
+                                                <Input type="time" className={classes.inputTime} value={time} onChange={this.handleTimeChanged} />
                                             </div>
                                         </div>
 
@@ -345,9 +406,9 @@ class NewExam extends React.Component {
 
                                             <div className={classes.phones}>
                                                 <div className={classes.inputWithAddIcon}>
-                                                    <FormControl>
+                                                    <FormControl error={phoneError.length !== 0}>
                                                         <Input value={phone} className={classes.telefone} inputComponent={TextMaskCustom} onChange={this.handlePhoneChanged} />
-                                                        <FormHelperText error id="name-error-text"></FormHelperText>
+                                                        <FormHelperText error={phoneError.length !== 0}>{phoneError}</FormHelperText>
                                                     </FormControl>
                                                 </div>
 
@@ -372,9 +433,9 @@ class NewExam extends React.Component {
 
                                             <div className={classes.emails}>
                                                 <div className={classes.inputWithAddIcon}>
-                                                    <FormControl>
-                                                        <Input className={classes.email} placeholder="exemplo@exemplo.com" />
-                                                        <FormHelperText error id="name-error-text"></FormHelperText>
+                                                    <FormControl error={emailError.length !== 0}>
+                                                        <Input value={email} className={classes.email} placeholder="exemplo@exemplo.com" />
+                                                        <FormHelperText error={emailError.length !== 0}>{emailError}</FormHelperText>
                                                     </FormControl>
                                                 </div>
 
@@ -398,14 +459,28 @@ class NewExam extends React.Component {
 
 NewExam.propTypes = {
     busy: PropTypes.bool,
-    extraPhones: PropTypes.arrayOf(PropTypes.string),
+    clientName: PropTypes.string,
+    clientNameError: PropTypes.string,
+    datetime: PropTypes.string,
+    email: PropTypes.string,
+    emailError: PropTypes.string,
     extraEmails: PropTypes.arrayOf(PropTypes.string),
+    extraPhones: PropTypes.arrayOf(PropTypes.string),
+    phone: PropTypes.string,
+    phoneError: PropTypes.string,
 }
 
 NewExam.defaultProps = {
     busy: false,
-    extraPhones: [],
+    clientName: '',
+    clientNameError: '',
+    datetime: '',
+    email: '',
+    emailError: '',
     extraEmails: [],
+    extraPhones: [],
+    phone: '',
+    phoneError: '',
 }
 
 export default withStyles(styles)(NewExam)
