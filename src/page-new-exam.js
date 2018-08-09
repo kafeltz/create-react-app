@@ -1,23 +1,21 @@
-import React from 'react'
-import Grid from '@material-ui/core/Grid'
-import Paper from '@material-ui/core/Paper'
-import Typography from '@material-ui/core/Typography'
-import Button from '@material-ui/core/Button'
-import { withStyles } from '@material-ui/core/styles'
-import Input from '@material-ui/core/Input'
-import FormHelperText from '@material-ui/core/FormHelperText'
 import MaskedInput from 'react-text-mask'
 import PropTypes from 'prop-types'
-import SvgIcon from '@material-ui/core/SvgIcon'
-import AddCircle from '@material-ui/icons/AddCircle'
-import ClearIcon from '@material-ui/icons/Clear'
-import CircularProgress from '@material-ui/core/CircularProgress';
+import React from 'react'
+
 import AppBar from '@material-ui/core/AppBar'
-import Toolbar from '@material-ui/core/Toolbar'
+import Button from '@material-ui/core/Button'
+import CircularProgress from '@material-ui/core/CircularProgress'
 import classNames from 'classnames'
-import IconButton from '@material-ui/core/IconButton'
+import ClearIcon from '@material-ui/icons/Clear'
 import FormControl from '@material-ui/core/FormControl'
-import guid from './guid.js'
+import FormHelperText from '@material-ui/core/FormHelperText'
+import Grid from '@material-ui/core/Grid'
+import IconButton from '@material-ui/core/IconButton'
+import Input from '@material-ui/core/Input'
+import Paper from '@material-ui/core/Paper'
+import Toolbar from '@material-ui/core/Toolbar'
+import Typography from '@material-ui/core/Typography'
+import { withStyles } from '@material-ui/core/styles'
 
 const styles = theme => {
     return {
@@ -166,6 +164,7 @@ class NewExam extends React.Component {
             email: props.email,
             emailError: props.emailError,
             extraEmails: props.extraEmails,
+            extraEmailsError: props.extraEmailsError,
             extraPhones: props.extraPhones,
             phone: props.phone,
             phoneError: props.phoneError,
@@ -180,6 +179,8 @@ class NewExam extends React.Component {
         this.handlePhoneChanged = this.handlePhoneChanged.bind(this)
         this.handleRemoveEmail = this.handleRemoveEmail.bind(this)
         this.handleRemovePhone = this.handleRemovePhone.bind(this)
+        this.handleSave = this.handleSave.bind(this)
+        this.handleSaveAndGo = this.handleSaveAndGo.bind(this)
         this.handleTimeChanged = this.handleTimeChanged.bind(this)
     }
 
@@ -208,12 +209,14 @@ class NewExam extends React.Component {
     handleAddEmail(e) {
         e.stopPropagation()
 
-        const { extraEmails } = this.state
-
-        const newEmail = [...extraEmails, '']
+        const {
+            extraEmails,
+            extraEmailsError,
+        } = this.state
 
         this.setState({
-            extraEmails: newEmail,
+            extraEmails: [...extraEmails, ''],
+            extraEmailsError: [...extraEmailsError, ''],
         })
     }
 
@@ -233,11 +236,16 @@ class NewExam extends React.Component {
         e.stopPropagation()
 
         const index = parseInt(e.currentTarget.dataset.index, 10)
-        const { extraEmails } = this.state
+        const {
+            extraEmails,
+            extraEmailsError,
+        } = this.state
         const newExtraEmail = extraEmails.filter((number, i) => i !== index)
+        const newExtraEmailError = extraEmailsError.filter((number, i) => i !== index)
 
         this.setState({
             extraEmails: newExtraEmail,
+            extraEmailsError: newExtraEmailError,
         })
     }
 
@@ -282,6 +290,12 @@ class NewExam extends React.Component {
         })
     }
 
+    handleSave(e) {
+    }
+
+    handleSaveAndGo(e) {
+    }
+
     render() {
         const { classes } = this.props
 
@@ -293,6 +307,7 @@ class NewExam extends React.Component {
             email,
             emailError,
             extraEmails,
+            extraEmailsError,
             extraPhones,
             phone,
             phoneError,
@@ -307,7 +322,7 @@ class NewExam extends React.Component {
                 <div className={classes.inputWithAddIcon} key={`phone_key_${index}`}>
                     <FormControl>
                         <Input className={classes.telefone} inputComponent={TextMaskCustom} value={value} onChange={e => this.handleExtraPhoneChanged(e, index)} />
-                        <FormHelperText></FormHelperText>
+                        <FormHelperText ></FormHelperText>
                     </FormControl>
 
                     <IconButton data-index={index} className={classes.icon} onClick={this.handleRemovePhone}>
@@ -318,11 +333,13 @@ class NewExam extends React.Component {
         })
 
         const emails = extraEmails.map((e, index) => {
+            const error = extraEmailsError[index]
+
             return (
                 <div className={classes.inputWithAddIcon} key={`email_key_${index}`}>
                     <FormControl>
                         <Input className={classes.email} placeholder="exemplo@exemplo.com" value={e} />
-                        <FormHelperText error id="name-error-text"></FormHelperText>
+                        <FormHelperText error={error.length !== 0}>{error}</FormHelperText>
                     </FormControl>
 
                     <IconButton data-index={index} className={classes.icon} onClick={this.handleRemoveEmail}>
@@ -340,11 +357,11 @@ class NewExam extends React.Component {
                             Novo exame
                         </Typography>
 
-                        <Button className={classes.button}>
+                        <Button className={classes.button} onClick={this.handleSave}>
                             Salvar e transmitir
                         </Button>
 
-                        <Button className={classes.button}>
+                        <Button className={classes.button} onClick={this.handleSaveAndGo}>
                             Salvar exame
                         </Button>
                     </Toolbar>
@@ -465,9 +482,11 @@ NewExam.propTypes = {
     email: PropTypes.string,
     emailError: PropTypes.string,
     extraEmails: PropTypes.arrayOf(PropTypes.string),
+    extraEmailsError: PropTypes.arrayOf(PropTypes.string),
     extraPhones: PropTypes.arrayOf(PropTypes.string),
     phone: PropTypes.string,
     phoneError: PropTypes.string,
+    onSave: PropTypes.func,
 }
 
 NewExam.defaultProps = {
@@ -478,10 +497,11 @@ NewExam.defaultProps = {
     email: '',
     emailError: '',
     extraEmails: [],
+    extraEmailsError: [],
     extraPhones: [],
     phone: '',
     phoneError: '',
+    onSave: () => console.info('NewExam:onSave is not bound!')
 }
 
 export default withStyles(styles)(NewExam)
-

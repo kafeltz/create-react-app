@@ -83,6 +83,9 @@ class PagePlaygrounds extends React.Component {
                             phoneError="Telefone é inválido!"
                             emailError="E-mail é inválido!"
                             datetime="09/08/2018 13:00"
+                            extraPhones={ [''] }
+                            extraEmails={ ['extra@eventials.com'] }
+                            extraEmailsError={ ['Campo inválido!'] }
                         />
                         <br />
                         <PageNewExam
