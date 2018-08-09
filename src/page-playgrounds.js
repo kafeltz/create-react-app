@@ -9,9 +9,12 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Button from '@material-ui/core/Button'
 
 import PageToken from './page-token.js'
+import PageNewExam from './page-new-exam.js'
+import PageDashboard from './page-dashboard.js'
 
 const PAGE_TOKEN = 'token'
 const PAGE_DASHBOARD = 'dashboard'
+const PAGE_NEW_EXAM = 'new-exam'
 
 const styles = theme => ({
     root: {
@@ -33,7 +36,7 @@ class PagePlaygrounds extends React.Component {
         super(props)
 
         this.state = {
-            page: PAGE_TOKEN,
+            page: PAGE_NEW_EXAM,
         }
 
         this.handlePageClick = this.handlePageClick.bind(this)
@@ -63,7 +66,19 @@ class PagePlaygrounds extends React.Component {
                     </React.Fragment>
                 )
             } else if (page === PAGE_DASHBOARD) {
-                return null
+                return (
+                    <React.Fragment>
+                        <PageDashboard />
+                    </React.Fragment>
+                )
+            } else if (page === PAGE_NEW_EXAM) {
+                return (
+                    <React.Fragment>
+                        <PageNewExam />
+                        <br />
+                        <PageNewExam busy={true} />
+                    </React.Fragment>
+                )
             }
         }
 
@@ -76,10 +91,10 @@ class PagePlaygrounds extends React.Component {
         return (
             <div className={classes.root}>
                 <Grid container spacing={16}>
-                    <Grid item xs={1}>
+                    <Grid item xs={2}>
                         <Paper className={classes.paper}>
                             <List component="nav">
-                                <ListItem >
+                                <ListItem>
                                     <ListItemText>
                                         <Button color={menuItemClass(PAGE_TOKEN)} className={classes.listItemText} onClick={this.handlePageClick} data-page={PAGE_TOKEN}>
                                             Token
@@ -87,21 +102,27 @@ class PagePlaygrounds extends React.Component {
                                     </ListItemText>
                                 </ListItem>
 
-                                <ListItemText>
-                                    <Button color={menuItemClass(PAGE_DASHBOARD)} className={classes.listItemText} onClick={this.handlePageClick} data-page={PAGE_DASHBOARD}>
-                                        Dashboard
-                                    </Button>
-                                </ListItemText>
+                                <ListItem>
+                                    <ListItemText>
+                                        <Button color={menuItemClass(PAGE_DASHBOARD)} className={classes.listItemText} onClick={this.handlePageClick} data-page={PAGE_DASHBOARD}>
+                                            Dashboard
+                                        </Button>
+                                    </ListItemText>
+                                </ListItem>
+
+                                <ListItem>
+                                    <ListItemText inset={true}>
+                                        <Button color={menuItemClass(PAGE_NEW_EXAM)} className={classes.listItemText} onClick={this.handlePageClick} data-page={PAGE_NEW_EXAM}>
+                                            Novo Exame
+                                        </Button>
+                                    </ListItemText>
+                                </ListItem>
                             </List>
                         </Paper>
                     </Grid>
 
-                    <Grid item xs={9}>
+                    <Grid item xs={4}>
                         {pageToRender()}
-                    </Grid>
-
-                    <Grid item xs={2}>
-
                     </Grid>
                 </Grid>
             </div>
