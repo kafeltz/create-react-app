@@ -2,6 +2,7 @@
     "extends": "react-app",
     "rules": {
         "indent": ["warn", 4],
-        "semi": ["warn", "never"]
+        "semi": ["warn", "never"],
+        "quotes": ["warn", "single"]
     }
 }

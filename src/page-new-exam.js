@@ -17,6 +17,8 @@ import Toolbar from '@material-ui/core/Toolbar'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
 
+import Menu from './component-menu.js'
+
 const styles = theme => {
     return {
         appbar: {
@@ -355,129 +357,137 @@ class NewExam extends React.Component {
         })
 
         return (
-            <div className={classes.container}>
-                <AppBar position="static" className={classes.appbar}>
-                    <Toolbar>
-                        <Typography variant="title" color="inherit" className={classes.flex}>
-                            Novo exame
-                        </Typography>
+            <div>
+                <Grid container>
+                    <Grid item xs={2}>
+                        <Menu />
+                    </Grid>
 
-                        <Button variant="outlined" color="secondary" className={classes.button} onClick={this.handleSave}>
-                            Salvar e transmitir
-                        </Button>
+                    <Grid item xs={10}>
+                        <AppBar position="static" className={classes.appbar}>
+                            <Toolbar>
+                                <Typography variant="title" color="inherit" className={classes.flex}>
+                                    Novo exame
+                                </Typography>
 
-                        <Button variant="contained" color="secondary" className={classes.button} onClick={this.handleSaveAndGo}>
-                            Salvar exame
-                        </Button>
-                    </Toolbar>
-                </AppBar>
+                                <Button variant="outlined" color="secondary" className={classes.button} onClick={this.handleSave}>
+                                    Salvar e transmitir
+                                </Button>
 
-                <Grid container className={classes.grid} justify="center">
-                    <Grid item lg={6} md={12} sm={12} className={classes.relative}>
-                        <CircularProgress className={classNames({ [classes.progress]: true, [classes.progressHidden]: !busy })} />
+                                <Button variant="contained" color="secondary" className={classes.button} onClick={this.handleSaveAndGo}>
+                                    Salvar exame
+                                </Button>
+                            </Toolbar>
+                        </AppBar>
 
-                        <form className={classes.form} noValidate autoComplete="off">
-                            <Paper className={classes.paper}>
-                                <Grid container xs={12} justify="space-between" className={classNames({[classes.pageBusy]: busy })}>
-                                    <Grid item xs={4} className={classes.formRow}>
-                                        <div className={classes.fieldsInfo}>
-                                            <Typography color="textPrimary" variant="body1">
-                                                Nome do paciente
-                                            </Typography>
+                        <Grid container className={classes.grid} justify="center">
+                            <Grid item lg={6} md={12} sm={12} className={classes.relative}>
+                                <CircularProgress className={classNames({ [classes.progress]: true, [classes.progressHidden]: !busy })} />
 
-                                            <Typography color="textSecondary"  variant="caption">
-                                                Nome completo do paciente para identificá-lo no dia do exame
-                                            </Typography>
-                                        </div>
-                                    </Grid>
+                                <form className={classes.form} noValidate autoComplete="off">
+                                    <Paper className={classes.paper}>
+                                        <Grid container xs={12} justify="space-between" className={classNames({[classes.pageBusy]: busy })}>
+                                            <Grid item xs={4} className={classes.formRow}>
+                                                <div className={classes.fieldsInfo}>
+                                                    <Typography color="textPrimary" variant="body1">
+                                                        Nome do paciente
+                                                    </Typography>
 
-                                    <Grid item xs={7} className={classes.formRow}>
-                                        <FormControl fullWidth error={clientNameError.length !== 0}>
-                                            <Input fullWidth value={clientName} onChange={this.handleClientChanged} />
-                                            <FormHelperText error={clientNameError.length !== 0}>{clientNameError}</FormHelperText>
-                                        </FormControl>
-                                    </Grid>
+                                                    <Typography color="textSecondary"  variant="caption">
+                                                        Nome completo do paciente para identificá-lo no dia do exame
+                                                    </Typography>
+                                                </div>
+                                            </Grid>
 
-                                    <Grid item xs={4} className={classes.formRow}>
-                                        <div className={classes.fieldsInfo}>
-                                            <Typography color="textPrimary" variant="body1">
-                                                Data e hora
-                                            </Typography>
-
-                                            <Typography color="textSecondary"  variant="caption">
-                                                Informe o dia e hora da reunião
-                                            </Typography>
-                                        </div>
-                                    </Grid>
-
-                                    <Grid item xs={7} className={classes.formRow}>
-                                        <div className={classes.dateAndTime}>
-                                            <Input type="date" className={classes.inputDate} value={date} onChange={this.handleDataChanged} />
-
-                                            <Input type="time" className={classes.inputTime} value={time} onChange={this.handleTimeChanged} />
-                                        </div>
-                                    </Grid>
-
-                                    <Grid item xs={4} className={classes.formRow}>
-                                        <div className={classes.fieldsInfo}>
-                                            <Typography color="textPrimary" variant="body1">
-                                                Telefones
-                                            </Typography>
-
-                                            <Typography color="textSecondary"  variant="caption">
-                                                Telefones que irão receber o SMS com o link da transmissão
-                                            </Typography>
-                                        </div>
-                                    </Grid>
-
-                                    <Grid item xs={7} className={classes.formRow}>
-                                        <div className={classes.phones}>
-                                            <div className={classes.inputWithAddIcon}>
-                                                <FormControl error={phoneError.length !== 0}>
-                                                    <Input value={phone} className={classes.telefone} inputComponent={TextMaskCustom} onChange={this.handlePhoneChanged} />
-                                                    <FormHelperText error={phoneError.length !== 0}>{phoneError}</FormHelperText>
+                                            <Grid item xs={7} className={classes.formRow}>
+                                                <FormControl fullWidth error={clientNameError.length !== 0}>
+                                                    <Input fullWidth value={clientName} onChange={this.handleClientChanged} />
+                                                    <FormHelperText error={clientNameError.length !== 0}>{clientNameError}</FormHelperText>
                                                 </FormControl>
-                                            </div>
+                                            </Grid>
 
-                                            {phones}
+                                            <Grid item xs={4} className={classes.formRow}>
+                                                <div className={classes.fieldsInfo}>
+                                                    <Typography color="textPrimary" variant="body1">
+                                                        Data e hora
+                                                    </Typography>
 
-                                            <Button size="small" color="primary" onClick={this.handleAddPhone} className={classes.buttonAddMore}>
-                                                Adicionar telefone
-                                            </Button>
-                                        </div>
-                                    </Grid>
+                                                    <Typography color="textSecondary"  variant="caption">
+                                                        Informe o dia e hora da reunião
+                                                    </Typography>
+                                                </div>
+                                            </Grid>
 
-                                    <Grid item xs={4} className={classes.formRow}>
-                                        <div className={classes.fieldsInfo}>
-                                            <Typography color="textPrimary" variant="body1">
-                                                E-mails
-                                            </Typography>
+                                            <Grid item xs={7} className={classes.formRow}>
+                                                <div className={classes.dateAndTime}>
+                                                    <Input type="date" className={classes.inputDate} value={date} onChange={this.handleDataChanged} />
 
-                                            <Typography color="textSecondary"  variant="caption">
-                                                E-mails que irão receber o link da transmissão
-                                            </Typography>
-                                        </div>
-                                    </Grid>
+                                                    <Input type="time" className={classes.inputTime} value={time} onChange={this.handleTimeChanged} />
+                                                </div>
+                                            </Grid>
 
-                                    <Grid item xs={7} className={classes.formRow}>
-                                        <div className={classes.emails}>
-                                            <div className={classes.inputWithAddIcon}>
-                                                <FormControl error={emailError.length !== 0}>
-                                                    <Input value={email} className={classes.email} placeholder="exemplo@exemplo.com" />
-                                                    <FormHelperText error={emailError.length !== 0}>{emailError}</FormHelperText>
-                                                </FormControl>
-                                            </div>
+                                            <Grid item xs={4} className={classes.formRow}>
+                                                <div className={classes.fieldsInfo}>
+                                                    <Typography color="textPrimary" variant="body1">
+                                                        Telefones
+                                                    </Typography>
 
-                                            {emails}
+                                                    <Typography color="textSecondary"  variant="caption">
+                                                        Telefones que irão receber o SMS com o link da transmissão
+                                                    </Typography>
+                                                </div>
+                                            </Grid>
 
-                                            <Button size="small" color="primary" onClick={this.handleAddEmail} className={classes.buttonAddMore}>
-                                                Adicionar e-mail
-                                            </Button>
-                                        </div>
-                                    </Grid>
-                                </Grid>
-                            </Paper>
-                        </form>
+                                            <Grid item xs={7} className={classes.formRow}>
+                                                <div className={classes.phones}>
+                                                    <div className={classes.inputWithAddIcon}>
+                                                        <FormControl error={phoneError.length !== 0}>
+                                                            <Input value={phone} className={classes.telefone} inputComponent={TextMaskCustom} onChange={this.handlePhoneChanged} />
+                                                            <FormHelperText error={phoneError.length !== 0}>{phoneError}</FormHelperText>
+                                                        </FormControl>
+                                                    </div>
+
+                                                    {phones}
+
+                                                    <Button size="small" color="primary" onClick={this.handleAddPhone} className={classes.buttonAddMore}>
+                                                        Adicionar telefone
+                                                    </Button>
+                                                </div>
+                                            </Grid>
+
+                                            <Grid item xs={4} className={classes.formRow}>
+                                                <div className={classes.fieldsInfo}>
+                                                    <Typography color="textPrimary" variant="body1">
+                                                        E-mails
+                                                    </Typography>
+
+                                                    <Typography color="textSecondary"  variant="caption">
+                                                        E-mails que irão receber o link da transmissão
+                                                    </Typography>
+                                                </div>
+                                            </Grid>
+
+                                            <Grid item xs={7} className={classes.formRow}>
+                                                <div className={classes.emails}>
+                                                    <div className={classes.inputWithAddIcon}>
+                                                        <FormControl error={emailError.length !== 0}>
+                                                            <Input value={email} className={classes.email} placeholder="exemplo@exemplo.com" />
+                                                            <FormHelperText error={emailError.length !== 0}>{emailError}</FormHelperText>
+                                                        </FormControl>
+                                                    </div>
+
+                                                    {emails}
+
+                                                    <Button size="small" color="primary" onClick={this.handleAddEmail} className={classes.buttonAddMore}>
+                                                        Adicionar e-mail
+                                                    </Button>
+                                                </div>
+                                            </Grid>
+                                        </Grid>
+                                    </Paper>
+                                </form>
+                            </Grid>
+                        </Grid>
                     </Grid>
                 </Grid>
             </div>

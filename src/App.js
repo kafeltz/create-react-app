@@ -6,6 +6,7 @@ import CssBaseline from '@material-ui/core/CssBaseline'
 
 import PageHome from './page-home.js'
 import PageDashboard from './page-dashboard.js'
+import PageNewExam from './page-new-exam.js'
 import PageToken from './page-token.js'
 import PagePlaygrounds from './page-playgrounds'
 
@@ -19,7 +20,7 @@ const theme = createMuiTheme({
         },
         secondary: {
             main: '#00CF74',
-            dark: '#006fb6',
+            // dark: '#006fb6',
         },
     },
     typography: {
@@ -62,6 +63,7 @@ class App extends Component {
                         <CssBaseline />
                         <Route exact path="/" component={PageHome} />
                         <Route path="/dashboard" component={PageDashboard} />
+                        <Route path="/new-exam" component={PageNewExam} />
                         <Route path="/token" component={PageToken} />
 
                         <Route path="/playgrounds" component={PagePlaygrounds} />
