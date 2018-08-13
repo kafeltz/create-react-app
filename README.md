@@ -8,6 +8,13 @@
 durante a execução do bundle, isso ocorre em casos quando usar Arrow Function, Async, Await, etc.
 
 
+# Tema
+## Cor primária (main): `00aeef`
+## Cor primária (dark): 006fb6
+## Cor secundária: `00cf74`
+
+
+
 
 - criar a aplicação frontend
 

@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { BrowserRouter as Router, Route, Link } from "react-router-dom"
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
 
 import CssBaseline from '@material-ui/core/CssBaseline'
 
@@ -10,6 +11,39 @@ import PagePlaygrounds from './page-playgrounds'
 
 import './App.css'
 import 'typeface-roboto'
+
+const theme = createMuiTheme({
+    palette: {
+        primary: {
+            main: '#00AEEF',
+        },
+        secondary: {
+            main: '#00CF74',
+            dark: '#006fb6',
+        },
+    },
+    typography: {
+        fontFamily: [
+            '-apple-system',
+            'BlinkMacSystemFont',
+            '"Segoe UI"',
+            'Roboto',
+            '"Helvetica Neue"',
+            'Arial',
+            'sans-serif',
+            '"Apple Color Emoji"',
+            '"Segoe UI Emoji"',
+            '"Segoe UI Symbol"',
+        ].join(','),
+    },
+    overrides: {
+        MuiButton: {
+            containedSecondary: {
+                color: 'white',
+            },
+        },
+    },
+})
 
 class App extends Component {
     constructor(props) {
@@ -22,19 +56,20 @@ class App extends Component {
 
     render() {
         return (
-            <Router>
-                <React.Fragment>
-                    <CssBaseline />
-                    <Route exact path="/" component={PageHome} />
-                    <Route path="/dashboard" component={PageDashboard} />
-                    <Route path="/token" component={PageToken} />
+            <MuiThemeProvider theme={theme}>
+                <Router>
+                    <React.Fragment>
+                        <CssBaseline />
+                        <Route exact path="/" component={PageHome} />
+                        <Route path="/dashboard" component={PageDashboard} />
+                        <Route path="/token" component={PageToken} />
 
-                    <Route path="/playgrounds" component={PagePlaygrounds} />
-                </React.Fragment>
-            </Router>
+                        <Route path="/playgrounds" component={PagePlaygrounds} />
+                    </React.Fragment>
+                </Router>
+            </MuiThemeProvider>
         )
     }
 }
-
 
 export default App

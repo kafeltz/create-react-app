@@ -140,7 +140,7 @@ class PagePlaygrounds extends React.Component {
                         </Paper>
                     </Grid>
 
-                    <Grid item xs={5}>
+                    <Grid item xs={8}>
                         {pageToRender()}
                     </Grid>
                 </Grid>

@@ -19,6 +19,22 @@ import { withStyles } from '@material-ui/core/styles'
 
 const styles = theme => {
     return {
+        appbar: {
+            background: 'white',
+            boxShadow: 'unset',
+            borderBottom: '1px solid #e0e0e0',
+        },
+        button: {
+            marginLeft: theme.spacing.unit,
+            marginRight: theme.spacing.unit,
+        },
+        buttonAddMore: {
+            color: theme.palette.primary.dark,
+            fontWeight: 600,
+        },
+        grid: {
+            padding: theme.spacing.unit * 3,
+        },
         paper: {
             padding: theme.spacing.unit * 3,
             position: 'relative',
@@ -27,7 +43,7 @@ const styles = theme => {
             opacity: 0.3,
             pointerEvents: 'none',
         },
-        container: {
+        form: {
             display: 'flex',
             flexWrap: 'wrap',
             flexDirection: 'column',
@@ -36,13 +52,11 @@ const styles = theme => {
             marginLeft: theme.spacing.unit,
             marginRight: theme.spacing.unit,
             marginTop: theme.spacing.unit * 3,
-            // width: 400,
         },
         formControl: {
             marginLeft: theme.spacing.unit,
             marginRight: theme.spacing.unit,
             marginTop: theme.spacing.unit * 3,
-            // width: 400,
         },
         field: {
             display: 'flex',
@@ -51,12 +65,6 @@ const styles = theme => {
             justifyContent: 'space-between',
             alignItems: 'center',
             marginBottom: theme.spacing.unit * 3,
-        },
-        fieldsInfo: {
-            width: 200,
-        },
-        input: {
-            width: 300,
         },
         dateAndTime: {
             width: 300,
@@ -91,14 +99,8 @@ const styles = theme => {
             flexWrap: 'nowrap',
             alignItems: 'flex-start',
         },
-        button: {
-            color: '#FFF',
-        },
         flex: {
             flexGrow: 1,
-        },
-        appbar: {
-            marginBottom: 20,
         },
         telefone: {
             width: 160,
@@ -126,6 +128,9 @@ const styles = theme => {
         },
         relative: {
             position: 'relative',
+        },
+        formRow: {
+            marginBottom: theme.spacing.unit * 3,
         },
     }
 }
@@ -339,7 +344,7 @@ class NewExam extends React.Component {
                 <div className={classes.inputWithAddIcon} key={`email_key_${index}`}>
                     <FormControl>
                         <Input className={classes.email} placeholder="exemplo@exemplo.com" value={e} />
-                        <FormHelperText error={error.length !== 0}>{error}</FormHelperText>
+                        {error && <FormHelperText error={error.length !== 0}>{error}</FormHelperText>}
                     </FormControl>
 
                     <IconButton data-index={index} className={classes.icon} onClick={this.handleRemoveEmail}>
@@ -350,126 +355,132 @@ class NewExam extends React.Component {
         })
 
         return (
-            <React.Fragment>
-                <AppBar position="static"  className={classes.appbar}>
+            <div className={classes.container}>
+                <AppBar position="static" className={classes.appbar}>
                     <Toolbar>
                         <Typography variant="title" color="inherit" className={classes.flex}>
                             Novo exame
                         </Typography>
 
-                        <Button className={classes.button} onClick={this.handleSave}>
+                        <Button variant="outlined" color="secondary" className={classes.button} onClick={this.handleSave}>
                             Salvar e transmitir
                         </Button>
 
-                        <Button className={classes.button} onClick={this.handleSaveAndGo}>
+                        <Button variant="contained" color="secondary" className={classes.button} onClick={this.handleSaveAndGo}>
                             Salvar exame
                         </Button>
                     </Toolbar>
                 </AppBar>
 
-                <Grid container spacing={24}>
-                    <Grid item xs={12} className={classes.relative}>
+                <Grid container className={classes.grid} justify="center">
+                    <Grid item lg={6} md={12} sm={12} className={classes.relative}>
                         <CircularProgress className={classNames({ [classes.progress]: true, [classes.progressHidden]: !busy })} />
 
-                        <Paper className={classes.paper}>
-                            <Grid container className={classNames({[classes.pageBusy]: busy })}>
-                                <Grid item xs={12}>
-                                    <form className={classes.container} noValidate autoComplete="off">
-                                        <div className={classes.field}>
-                                            <div className={classes.fieldsInfo}>
-                                                <Typography color="textPrimary" variant="body1">
-                                                    Nome do paciente
-                                                </Typography>
+                        <form className={classes.form} noValidate autoComplete="off">
+                            <Paper className={classes.paper}>
+                                <Grid container xs={12} justify="space-between" className={classNames({[classes.pageBusy]: busy })}>
+                                    <Grid item xs={4} className={classes.formRow}>
+                                        <div className={classes.fieldsInfo}>
+                                            <Typography color="textPrimary" variant="body1">
+                                                Nome do paciente
+                                            </Typography>
 
-                                                <Typography color="textSecondary"  variant="body1">
-                                                    Nome completo do paciente para identificá-lo no dia do exame
-                                                </Typography>
-                                            </div>
-
-                                            <FormControl error={clientNameError.length !== 0}>
-                                                <Input className={classes.input} value={clientName} onChange={this.handleClientChanged} />
-                                                <FormHelperText error={clientNameError.length !== 0}>{clientNameError}</FormHelperText>
-                                            </FormControl>
+                                            <Typography color="textSecondary"  variant="caption">
+                                                Nome completo do paciente para identificá-lo no dia do exame
+                                            </Typography>
                                         </div>
+                                    </Grid>
 
-                                        <div className={classes.field}>
-                                            <div className={classes.fieldsInfo}>
-                                                <Typography color="textPrimary" variant="body1">
-                                                    Data e hora
-                                                </Typography>
+                                    <Grid item xs={7} className={classes.formRow}>
+                                        <FormControl fullWidth error={clientNameError.length !== 0}>
+                                            <Input fullWidth value={clientName} onChange={this.handleClientChanged} />
+                                            <FormHelperText error={clientNameError.length !== 0}>{clientNameError}</FormHelperText>
+                                        </FormControl>
+                                    </Grid>
 
-                                                <Typography color="textSecondary"  variant="body1">
-                                                    Informe o dia e hora da reunião
-                                                </Typography>
-                                            </div>
+                                    <Grid item xs={4} className={classes.formRow}>
+                                        <div className={classes.fieldsInfo}>
+                                            <Typography color="textPrimary" variant="body1">
+                                                Data e hora
+                                            </Typography>
 
-                                            <div className={classes.dateAndTime}>
-                                                <Input type="date" className={classes.inputDate} value={date} onChange={this.handleDataChanged} />
-
-                                                <Input type="time" className={classes.inputTime} value={time} onChange={this.handleTimeChanged} />
-                                            </div>
+                                            <Typography color="textSecondary"  variant="caption">
+                                                Informe o dia e hora da reunião
+                                            </Typography>
                                         </div>
+                                    </Grid>
 
-                                        <div className={classes.field}>
-                                            <div className={classes.fieldsInfo}>
-                                                <Typography color="textPrimary" variant="body1">
-                                                    Telefones
-                                                </Typography>
+                                    <Grid item xs={7} className={classes.formRow}>
+                                        <div className={classes.dateAndTime}>
+                                            <Input type="date" className={classes.inputDate} value={date} onChange={this.handleDataChanged} />
 
-                                                <Typography color="textSecondary"  variant="body1">
-                                                    Telefones que irão receber o SMS com o link da transmissão
-                                                </Typography>
-                                            </div>
-
-                                            <div className={classes.phones}>
-                                                <div className={classes.inputWithAddIcon}>
-                                                    <FormControl error={phoneError.length !== 0}>
-                                                        <Input value={phone} className={classes.telefone} inputComponent={TextMaskCustom} onChange={this.handlePhoneChanged} />
-                                                        <FormHelperText error={phoneError.length !== 0}>{phoneError}</FormHelperText>
-                                                    </FormControl>
-                                                </div>
-
-                                                {phones}
-
-                                                <Button size="small" color="secondary" onClick={this.handleAddPhone}>
-                                                    Adicionar telefone
-                                                </Button>
-                                            </div>
+                                            <Input type="time" className={classes.inputTime} value={time} onChange={this.handleTimeChanged} />
                                         </div>
+                                    </Grid>
 
-                                        <div className={classes.field}>
-                                            <div className={classes.fieldsInfo}>
-                                                <Typography color="textPrimary" variant="body1">
-                                                    E-mails
-                                                </Typography>
+                                    <Grid item xs={4} className={classes.formRow}>
+                                        <div className={classes.fieldsInfo}>
+                                            <Typography color="textPrimary" variant="body1">
+                                                Telefones
+                                            </Typography>
 
-                                                <Typography color="textSecondary"  variant="body1">
-                                                    E-mails que irão receber o link da transmissão
-                                                </Typography>
-                                            </div>
-
-                                            <div className={classes.emails}>
-                                                <div className={classes.inputWithAddIcon}>
-                                                    <FormControl error={emailError.length !== 0}>
-                                                        <Input value={email} className={classes.email} placeholder="exemplo@exemplo.com" />
-                                                        <FormHelperText error={emailError.length !== 0}>{emailError}</FormHelperText>
-                                                    </FormControl>
-                                                </div>
-
-                                                {emails}
-
-                                                <Button size="small" color="secondary" onClick={this.handleAddEmail}>
-                                                    Adicionar e-mail
-                                                </Button>
-                                            </div>
+                                            <Typography color="textSecondary"  variant="caption">
+                                                Telefones que irão receber o SMS com o link da transmissão
+                                            </Typography>
                                         </div>
-                                    </form>
+                                    </Grid>
+
+                                    <Grid item xs={7} className={classes.formRow}>
+                                        <div className={classes.phones}>
+                                            <div className={classes.inputWithAddIcon}>
+                                                <FormControl error={phoneError.length !== 0}>
+                                                    <Input value={phone} className={classes.telefone} inputComponent={TextMaskCustom} onChange={this.handlePhoneChanged} />
+                                                    <FormHelperText error={phoneError.length !== 0}>{phoneError}</FormHelperText>
+                                                </FormControl>
+                                            </div>
+
+                                            {phones}
+
+                                            <Button size="small" color="primary" onClick={this.handleAddPhone} className={classes.buttonAddMore}>
+                                                Adicionar telefone
+                                            </Button>
+                                        </div>
+                                    </Grid>
+
+                                    <Grid item xs={4} className={classes.formRow}>
+                                        <div className={classes.fieldsInfo}>
+                                            <Typography color="textPrimary" variant="body1">
+                                                E-mails
+                                            </Typography>
+
+                                            <Typography color="textSecondary"  variant="caption">
+                                                E-mails que irão receber o link da transmissão
+                                            </Typography>
+                                        </div>
+                                    </Grid>
+
+                                    <Grid item xs={7} className={classes.formRow}>
+                                        <div className={classes.emails}>
+                                            <div className={classes.inputWithAddIcon}>
+                                                <FormControl error={emailError.length !== 0}>
+                                                    <Input value={email} className={classes.email} placeholder="exemplo@exemplo.com" />
+                                                    <FormHelperText error={emailError.length !== 0}>{emailError}</FormHelperText>
+                                                </FormControl>
+                                            </div>
+
+                                            {emails}
+
+                                            <Button size="small" color="primary" onClick={this.handleAddEmail} className={classes.buttonAddMore}>
+                                                Adicionar e-mail
+                                            </Button>
+                                        </div>
+                                    </Grid>
                                 </Grid>
-                            </Grid>
-                        </Paper>
+                            </Paper>
+                        </form>
                     </Grid>
                 </Grid>
-            </React.Fragment>
+            </div>
         )
     }
 }
