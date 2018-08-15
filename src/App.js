@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { BrowserRouter as Router, Route, Link } from "react-router-dom"
+import { BrowserRouter as Router, Route } from 'react-router-dom'
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
 
 import CssBaseline from '@material-ui/core/CssBaseline'
@@ -8,7 +8,9 @@ import PageHome from './page-home.js'
 import PageDashboard from './page-dashboard.js'
 import PageNewExam from './page-new-exam.js'
 import PageToken from './page-token.js'
-import PagePlaygrounds from './page-playgrounds'
+import PagePlaygrounds from './page-playgrounds.js'
+import PageConfig from './page-config.js'
+import PageTransmission from './page-transmission.js'
 
 import './App.css'
 import 'typeface-roboto'
@@ -65,6 +67,8 @@ class App extends Component {
                         <Route path="/dashboard" component={PageDashboard} />
                         <Route path="/new-exam" component={PageNewExam} />
                         <Route path="/token" component={PageToken} />
+                        <Route path="/config" component={PageConfig} />
+                        <Route path="/transmission" component={PageTransmission} />
 
                         <Route path="/playgrounds" component={PagePlaygrounds} />
                     </React.Fragment>

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import Drawer from '@material-ui/core/Drawer'
 import Divider from '@material-ui/core/Divider'
 import { withStyles } from '@material-ui/core/styles'
-import logo from './vlab-logo-dark.png'
+import logo from './assets/vlab-logo-dark.png'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
@@ -57,6 +57,8 @@ const Menu = ({ classes }) => {
         return <Link to={to}  {...props} />
     }
 
+    const linkToConfig = props => <Link to="/config" {...props} />
+
     return (
         <Drawer
             variant="permanent"
@@ -86,7 +88,7 @@ const Menu = ({ classes }) => {
 
             <Divider />
 
-            <ListItem button>
+            <ListItem button component={linkToConfig}>
                 <ListItemIcon>
                     <SettingsSharpIcon />
                 </ListItemIcon>

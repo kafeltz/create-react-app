@@ -19,6 +19,8 @@ import { withStyles } from '@material-ui/core/styles'
 
 import Menu from './component-menu.js'
 
+import { saveExam } from './lib/api.js'
+
 const styles = theme => {
     return {
         appbar: {
@@ -298,6 +300,14 @@ class NewExam extends React.Component {
     }
 
     handleSave(e) {
+        const payload = {
+            pacientName: 'teste',
+            datetime: '31/01/2018 16:55',
+            phones: ['(47) 12345-1234'],
+            emails: ['abc@abc.com'],
+        }
+
+        saveExam(payload)
     }
 
     handleSaveAndGo(e) {
@@ -370,11 +380,11 @@ class NewExam extends React.Component {
                                     Novo exame
                                 </Typography>
 
-                                <Button variant="outlined" color="secondary" className={classes.button} onClick={this.handleSave}>
+                                <Button variant="outlined" color="secondary" className={classes.button} onClick={this.handleSaveAndGo}>
                                     Salvar e transmitir
                                 </Button>
 
-                                <Button variant="contained" color="secondary" className={classes.button} onClick={this.handleSaveAndGo}>
+                                <Button variant="contained" color="secondary" className={classes.button} onClick={this.handleSave}>
                                     Salvar exame
                                 </Button>
                             </Toolbar>
@@ -386,7 +396,7 @@ class NewExam extends React.Component {
 
                                 <form className={classes.form} noValidate autoComplete="off">
                                     <Paper className={classes.paper}>
-                                        <Grid container xs={12} justify="space-between" className={classNames({[classes.pageBusy]: busy })}>
+                                        <Grid container justify="space-between" className={classNames({[classes.pageBusy]: busy })}>
                                             <Grid item xs={4} className={classes.formRow}>
                                                 <div className={classes.fieldsInfo}>
                                                     <Typography color="textPrimary" variant="body1">

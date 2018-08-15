@@ -22,9 +22,11 @@ import ShareIcon from '@material-ui/icons/Share'
 import DeleteIcon from '@material-ui/icons/Delete'
 import VideocamIcon from '@material-ui/icons/Videocam'
 
-import emptyImage from './doctor.svg'
+import emptyImage from './assets/doctor.svg'
 
 import Menu from './component-menu.js'
+
+import { getExams } from './lib/api.js'
 
 const PAGE_NO_EXAMS = 'PAGE_NO_EXAMS'
 const PAGE_EXAMS = 'PAGE_EXAMS'
@@ -71,6 +73,19 @@ const styles = theme => ({
 class Dashboard extends Component {
     constructor(props) {
         super(props)
+
+        const params = {
+            after: '',
+            before: '',
+            email: '',
+            enable: '',
+            limit: '',
+            pacientName: '',
+            page: '',
+            phone: '',
+        }
+
+        const exams = getExams(params)
     }
 
     render() {
