@@ -82,7 +82,7 @@ const Menu = ({ classes }) => {
                 </ListItem>
 
                 <ListItem button component={linkToDone}>
-                    <ListItemText inset primary="Realizados" />
+                    <ListItemText inset primary="Gravados" />
                 </ListItem>
             </List>
 

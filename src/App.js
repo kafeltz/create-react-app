@@ -16,6 +16,16 @@ import './App.css'
 import 'typeface-roboto'
 
 const theme = createMuiTheme({
+    overrides: {
+        MuiButton: {
+            containedSecondary: {
+                color: 'white',
+            },
+            textPrimary: {
+                color: '#006fb6',
+            },
+        },
+    },
     palette: {
         primary: {
             main: '#00AEEF',
@@ -38,13 +48,6 @@ const theme = createMuiTheme({
             '"Segoe UI Emoji"',
             '"Segoe UI Symbol"',
         ].join(','),
-    },
-    overrides: {
-        MuiButton: {
-            containedSecondary: {
-                color: 'white',
-            },
-        },
     },
 })
 
@@ -76,8 +79,8 @@ class App extends Component {
                         <CssBaseline />
 
                         <Route exact path="/" component={PageHome} />
-                        <Route path="/dashboard" component={PageDashboard} />
-                        <Route path="/new-exam" render={ props => <PageNewExam route={{...props}} {...newExamData} />  } />
+                        <Route path="/dashboard" render={ props => <PageDashboard route={{...props}} {...newExamData} /> } />
+                        <Route path="/new-exam" render={ props => <PageNewExam route={{...props}} {...newExamData} /> } />
                         <Route path="/token" component={PageToken} />
                         <Route path="/config" component={PageConfig} />
                         <Route path="/transmission" component={PageTransmission} />

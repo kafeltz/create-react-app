@@ -23,14 +23,18 @@ import SnackbarContent from '@material-ui/core/SnackbarContent'
 
 import moment from 'moment'
 import Menu from './component-menu.js'
-import { saveExam } from './lib/api.js'
+
+import {
+    saveExam,
+    NEED_BE_IN_FUTURE,
+} from './lib/api.js'
+
 import { toIsoDate } from './lib/date.js'
 
 import is from 'is_js'
 
 import {
     FORM_AT_LEAST_ONE_CONTACT,
-    FORM_DATE_AND_TIME_INVALID,
     FORM_INVALID_EMAIL,
     FORM_INVALID_PHONE,
     FORM_NOT_NULL,
@@ -444,6 +448,8 @@ class NewExam extends React.Component {
                 snackbarMessage: FORM_AT_LEAST_ONE_CONTACT,
                 snackbarOpen: true,
             })
+
+            isValid = false
         }
 
         return isValid
@@ -462,7 +468,7 @@ class NewExam extends React.Component {
 
         if (this.isValid()) {
             const payload = {
-                datetime: toIsoDate(`${date} ${time}`),
+                datetime: `${date} ${time}`,
                 emails: [].concat(email).concat(extraEmails),
                 patientName: clientName,
                 phones: [].concat(phone).concat(extraPhones),
@@ -470,11 +476,35 @@ class NewExam extends React.Component {
 
             this.setState({ busy: true })
 
-            saveExam(payload)
-                .then(() => this.setState({ busy: false }))
-                .then(() => this.route.history.push('/dashboard'))
-                .catch(() => this.setState({ busy: false }))
+            this.handleSaveExamResponse(saveExam(payload))
         }
+    }
+
+    handleSaveExamResponse(promise) {
+        promise
+            .then(response => {
+                this.setState({ busy: false })
+
+                return response
+            })
+            .then(response => {
+                if (response.status === 201) {
+                    this.route.history.push('/dashboard')
+                } else if (response.status === 400) {
+                    response.json().then(json => {
+                        if (json.error['scheduled'] === NEED_BE_IN_FUTURE) {
+                            this.setState({
+                                snackbarMessage: 'Você deve informar uma data ou hora futura.',
+                                snackbarOpen: true,
+                            })
+                        }
+                    })
+                }
+            })
+            .catch(e => {
+                this.setState({ busy: false })
+                console.error(e.message)
+            })
     }
 
     handleSaveAndGo(e) {
