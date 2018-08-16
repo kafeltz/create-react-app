@@ -22,11 +22,14 @@ import ShareIcon from '@material-ui/icons/Share'
 import DeleteIcon from '@material-ui/icons/Delete'
 import VideocamIcon from '@material-ui/icons/Videocam'
 
+import Modal from '@material-ui/core/Modal'
+
 import emptyImage from './assets/doctor.svg'
 
 import Menu from './component-menu.js'
 
 import { getExams } from './lib/api.js'
+import { toDate } from './lib/date.js'
 
 const PAGE_NO_EXAMS = 'PAGE_NO_EXAMS'
 const PAGE_EXAMS = 'PAGE_EXAMS'
@@ -34,39 +37,44 @@ const PAGE_EXAMS = 'PAGE_EXAMS'
 const styles = theme => ({
     appbar: {
         background: 'white',
-        boxShadow: 'unset',
         borderBottom: '1px solid #e0e0e0',
-    },
-    flex: {
-        flexGrow: 1,
+        boxShadow: 'unset',
     },
     button: {
         marginLeft: theme.spacing.unit,
         marginRight: theme.spacing.unit,
     },
-    paper: {
-        padding: theme.spacing.unit * 6,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexDirection: 'column',
+    emptyImage: {
+        height: 'auto',
+        width: '50%',
+    },
+    flex: {
+        flexGrow: 1,
     },
     grid: {
         padding: theme.spacing.unit * 3,
     },
-    emptyImage: {
-        width: '50%',
-        height: 'auto',
-    },
-    text: {
-        marginTop: theme.spacing.unit * 3,
-        marginBottom: theme.spacing.unit * 3,
-    },
     icon: {
-        marginRight: 5,
-        marginLeft: 5,
         color: '#757575',
         cursor: 'pointer',
+        marginLeft: 5,
+        marginRight: 5,
+    },
+    modalPaper: {
+        backgroundColor: theme.palette.background.paper,
+        boxShadow: theme.shadows[5],
+        padding: theme.spacing.unit * 4,
+        position: 'absolute',
+        width: theme.spacing.unit * 50,
+    },
+    paper: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+    },
+    text: {
+        marginBottom: theme.spacing.unit * 3,
+        marginTop: theme.spacing.unit * 3,
     },
 })
 
@@ -74,22 +82,29 @@ class Dashboard extends Component {
     constructor(props) {
         super(props)
 
-        const params = {
-            after: '',
-            before: '',
-            email: '',
-            enable: '',
-            limit: '',
-            pacientName: '',
-            page: '',
-            phone: '',
+        this.state = {
+            data: [],
+            page: 0,
+            rowsPerPage: 10,
         }
 
-        const exams = getExams(params)
+        const exams = getExams()
+
+        exams.then(data => this.setState({ data: data }))
+    }
+
+    handleChangePage(e, page) {
+        this.setState({ page })
     }
 
     render() {
         const { classes } = this.props
+
+        const {
+            data,
+            rowsPerPage,
+            page,
+        } = this.state
 
         const newButton = (
             <Button variant="contained" color="secondary" className={classes.button} component={Link} to="/new-exam">
@@ -98,7 +113,7 @@ class Dashboard extends Component {
         )
 
         const noExamPage = (
-            <React.Fragment>
+            <div className={classes.modalPaper}>
                 <img className={classes.emptyImage} src={emptyImage} alt="" />
 
                 <Typography color="textPrimary" variant="title" className={classes.text}>
@@ -106,22 +121,26 @@ class Dashboard extends Component {
                 </Typography>
 
                 {newButton}
-            </React.Fragment>
+            </div>
         )
 
         const examPage = () => {
-            const rows = () => {
+            const rows = data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(x => {
                 return (
-                    <TableRow>
+                    <TableRow key={x.id}>
                         <TableCell>
-                            lorem
+                            <Typography variant="body1">
+                                {toDate(x.scheduled)}
+                            </Typography>
                         </TableCell>
 
                         <TableCell>
-                            lorem
+                            <Typography variant="body1">
+                                {x.patient}
+                            </Typography>
                         </TableCell>
 
-                        <TableCell>
+                        <TableCell numeric={true}>
                             <IconButton className={classes.icon}>
                                 <ShareIcon />
                             </IconButton>
@@ -136,11 +155,9 @@ class Dashboard extends Component {
                         </TableCell>
                     </TableRow>
                 )
-            }
+            })
 
-            const count = 20
-            const rowsPerPage = 10
-            const page = 1
+            const count = data.length
 
             return (
                 <React.Fragment>
@@ -148,13 +165,15 @@ class Dashboard extends Component {
                         <TableHead>
                             <TableRow>
                                 <TableCell>
-                                    <Typography variant="body1">
+                                    <Typography variant="title">
                                         Data e hora
                                     </Typography>
                                 </TableCell>
 
                                 <TableCell>
-                                    Paciente
+                                    <Typography variant="title">
+                                        Paciente
+                                    </Typography>
                                 </TableCell>
 
                                 <TableCell>
@@ -164,7 +183,7 @@ class Dashboard extends Component {
                         </TableHead>
 
                         <TableBody>
-                            {rows()}
+                            {rows}
                         </TableBody>
                     </Table>
 
@@ -227,6 +246,23 @@ class Dashboard extends Component {
                         </Grid>
                     </Grid>
                 </Grid>
+
+                <Modal
+                    aria-labelledby="simple-modal-title"
+                    aria-describedby="simple-modal-description"
+                    open={true}
+                    onClose={this.handleClose}
+                >
+                    <React.Fragment>
+                        <Typography variant="title" id="modal-title">
+                        Text in a modal
+                        </Typography>
+
+                        <Typography variant="subheading" id="simple-modal-description">
+                        Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+                        </Typography>
+                    </React.Fragment>
+                </Modal>
             </div>
         )
     }

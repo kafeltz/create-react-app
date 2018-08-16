@@ -58,14 +58,26 @@ class App extends Component {
     }
 
     render() {
+        const newExamData = {}
+
+        // const newExamData = {
+            // clientName: 'Lorem Ipsum',
+            // datetime: '2018-08-15 16:21',
+            // email: 'um@email.com',
+            // extraEmails: ['dois@email.com'],
+            // phone: '(47) 12345-6789',
+            // extraPhones: ['(47) 55555-6666'],
+        // }
+
         return (
             <MuiThemeProvider theme={theme}>
                 <Router>
                     <React.Fragment>
                         <CssBaseline />
+
                         <Route exact path="/" component={PageHome} />
                         <Route path="/dashboard" component={PageDashboard} />
-                        <Route path="/new-exam" component={PageNewExam} />
+                        <Route path="/new-exam" render={ props => <PageNewExam route={{...props}} {...newExamData} />  } />
                         <Route path="/token" component={PageToken} />
                         <Route path="/config" component={PageConfig} />
                         <Route path="/transmission" component={PageTransmission} />

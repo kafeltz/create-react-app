@@ -3,12 +3,12 @@ import moment from 'moment'
 // from: 2009-11-10T23:00:00.000Z
 // to: dd/mm/aaaa hh:mm
 const toDate = function(datetime) {
-    const regex = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.(\d{3})Z$/
+    const result = moment(datetime).format('DD/MM/YYYY HH:mm')
 
-    if (datetime.match(regex) !== null) {
-        return moment(datetime).format('DD/MM/YYYY HH:mm')
-    } else {
+    if (result === 'Invalid date') {
         return false
+    } else {
+        return result
     }
 }
 

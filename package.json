@@ -8,6 +8,7 @@
     "@material-ui/icons": "^2.0.1",
     "classnames": "^2.2.6",
     "hls.js": "^0.10.1",
+    "is_js": "^0.9.0",
     "moment": "^2.22.2",
     "react": "^16.4.2",
     "react-dom": "^16.4.2",
@@ -20,7 +21,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "lint": "./node_modules/eslint/bin/eslint.js src/"
   },
   "devDependencies": {
     "eslint-config-react-app": "^2.1.0"

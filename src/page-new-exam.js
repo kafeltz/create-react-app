@@ -8,6 +8,8 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 import classNames from 'classnames'
 import ClearIcon from '@material-ui/icons/Clear'
 import FormControl from '@material-ui/core/FormControl'
+import CloseIcon from '@material-ui/icons/Close'
+
 import FormHelperText from '@material-ui/core/FormHelperText'
 import Grid from '@material-ui/core/Grid'
 import IconButton from '@material-ui/core/IconButton'
@@ -16,17 +18,31 @@ import Paper from '@material-ui/core/Paper'
 import Toolbar from '@material-ui/core/Toolbar'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
+import Snackbar from '@material-ui/core/Snackbar'
+import SnackbarContent from '@material-ui/core/SnackbarContent'
 
+import moment from 'moment'
 import Menu from './component-menu.js'
-
 import { saveExam } from './lib/api.js'
+import { toIsoDate } from './lib/date.js'
+
+import is from 'is_js'
+
+import {
+    FORM_AT_LEAST_ONE_CONTACT,
+    FORM_DATE_AND_TIME_INVALID,
+    FORM_INVALID_EMAIL,
+    FORM_INVALID_PHONE,
+    FORM_NOT_NULL,
+    REGEX_PHONE,
+} from './lib/consts.js'
 
 const styles = theme => {
     return {
         appbar: {
             background: 'white',
-            boxShadow: 'unset',
             borderBottom: '1px solid #e0e0e0',
+            boxShadow: 'unset',
         },
         button: {
             marginLeft: theme.spacing.unit,
@@ -36,95 +52,90 @@ const styles = theme => {
             color: theme.palette.primary.dark,
             fontWeight: 600,
         },
-        grid: {
-            padding: theme.spacing.unit * 3,
+        dateAndTime: {
+            alignItems: 'center',
+            display: 'flex',
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            width: 270,
         },
-        paper: {
-            padding: theme.spacing.unit * 3,
-            position: 'relative',
+        email: {
+            width: 250,
         },
-        pageBusy: {
-            opacity: 0.3,
-            pointerEvents: 'none',
+        emails: {
+            alignItems: 'flex-start',
+            display: 'flex',
+            flexDirection: 'column',
+            flexWrap: 'nowrap',
+        },
+        field: {
+            alignItems: 'center',
+            display: 'flex',
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            justifyContent: 'space-between',
+            marginBottom: theme.spacing.unit * 3,
+        },
+        flex: {
+            flexGrow: 1,
         },
         form: {
             display: 'flex',
-            flexWrap: 'wrap',
             flexDirection: 'column',
-        },
-        textField: {
-            marginLeft: theme.spacing.unit,
-            marginRight: theme.spacing.unit,
-            marginTop: theme.spacing.unit * 3,
+            flexWrap: 'wrap',
         },
         formControl: {
             marginLeft: theme.spacing.unit,
             marginRight: theme.spacing.unit,
             marginTop: theme.spacing.unit * 3,
         },
-        field: {
-            display: 'flex',
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            justifyContent: 'space-between',
-            alignItems: 'center',
+        formRow: {
             marginBottom: theme.spacing.unit * 3,
         },
-        dateAndTime: {
-            width: 300,
-            display: 'flex',
-            flexDirection: 'row',
-            flexWrap: 'nowrap',
-            alignItems: 'center',
-        },
-        inputDate: {
-            width: 160,
-            marginRight: theme.spacing.unit * 1,
-        },
-        inputTime: {
-            width: 75,
+        grid: {
+            padding: theme.spacing.unit * 3,
         },
         icon: {
-            marginRight: 5,
-            marginLeft: 5,
             color: '#757575',
             cursor: 'pointer',
+            marginLeft: 5,
+            marginRight: 5,
+        },
+        inputDate: {
+            marginRight: theme.spacing.unit * 1,
+            width: 160,
+        },
+        inputTime: {
+            width: 80,
         },
         inputWithAddIcon: {
-            width: 300,
+            alignItems: 'center',
             display: 'flex',
             flexDirection: 'row',
             flexWrap: 'nowrap',
-            alignItems: 'center',
+            width: 300,
+        },
+        pageBusy: {
+            opacity: 0.3,
+            pointerEvents: 'none',
+        },
+        paper: {
+            padding: theme.spacing.unit * 3,
+            position: 'relative',
         },
         phones: {
+            alignItems: 'flex-start',
             display: 'flex',
             flexDirection: 'column',
             flexWrap: 'nowrap',
-            alignItems: 'flex-start',
-        },
-        flex: {
-            flexGrow: 1,
-        },
-        telefone: {
-            width: 160,
-        },
-        email: {
-            width: 250,
-        },
-        emails: {
-            display: 'flex',
-            flexDirection: 'column',
-            flexWrap: 'nowrap',
-            alignItems: 'flex-start',
         },
         progress: {
-            position: 'absolute',
-            margin: 'auto',
+            bottom: 0,
             left: 0,
+            margin: 'auto',
+            position: 'absolute',
             right:0,
             top: 0,
-            bottom: 0,
             zIndex: 1000,
         },
         progressHidden: {
@@ -133,8 +144,16 @@ const styles = theme => {
         relative: {
             position: 'relative',
         },
-        formRow: {
-            marginBottom: theme.spacing.unit * 3,
+        snackbar: {
+            backgroundColor: theme.palette.error.dark,
+        },
+        telefone: {
+            width: 160,
+        },
+        textField: {
+            marginLeft: theme.spacing.unit,
+            marginRight: theme.spacing.unit,
+            marginTop: theme.spacing.unit * 3,
         },
     }
 }
@@ -161,6 +180,8 @@ const aaaammdd = ddmmaaaa => {
     return ddmmaaaa.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1')
 }
 
+const isValidPhone = phone => phone.match(REGEX_PHONE) !== null
+
 class NewExam extends React.Component {
     constructor(props) {
         super(props)
@@ -170,20 +191,29 @@ class NewExam extends React.Component {
             clientName: props.clientName,
             clientNameError: props.clientNameError,
             date: aaaammdd(props.datetime.split(' ')[0]),
+            dateAndTimeError: '',
             email: props.email,
             emailError: props.emailError,
             extraEmails: props.extraEmails,
             extraEmailsError: props.extraEmailsError,
             extraPhones: props.extraPhones,
+            extraPhonesError: props.extraPhonesError,
             phone: props.phone,
             phoneError: props.phoneError,
+            snackbarMessage: '',
+            snackbarOpen: false,
             time: props.datetime.split(' ')[1],
         }
+
+        this.route = props.route
 
         this.handleAddEmail = this.handleAddEmail.bind(this)
         this.handleAddPhone = this.handleAddPhone.bind(this)
         this.handleClientChanged = this.handleClientChanged.bind(this)
-        this.handleDataChanged = this.handleDataChanged.bind(this)
+        this.handleCloseSnackbar = this.handleCloseSnackbar.bind(this)
+        this.handleDateChanged = this.handleDateChanged.bind(this)
+        this.handleEmailChanged = this.handleEmailChanged.bind(this)
+        this.handleExtraEmailChanged = this.handleExtraEmailChanged.bind(this)
         this.handleExtraPhoneChanged = this.handleExtraPhoneChanged.bind(this)
         this.handlePhoneChanged = this.handlePhoneChanged.bind(this)
         this.handleRemoveEmail = this.handleRemoveEmail.bind(this)
@@ -193,10 +223,20 @@ class NewExam extends React.Component {
         this.handleTimeChanged = this.handleTimeChanged.bind(this)
     }
 
-    handlePhoneChanged(e) {
+    handleEmailChanged(e) {
         e.stopPropagation()
 
         const value = e.currentTarget.value
+
+        this.setState({
+            email: value,
+        })
+    }
+
+    handlePhoneChanged(e) {
+        e.stopPropagation()
+
+        const value = e.currentTarget.value !== '(  )      -    ' ? e.currentTarget.value : ''
 
         this.setState({
             phone: value,
@@ -206,12 +246,14 @@ class NewExam extends React.Component {
     handleAddPhone(e) {
         e.stopPropagation()
 
-        const { extraPhones } = this.state
-
-        const newPhone = [...extraPhones, '']
+        const {
+            extraPhones,
+            extraPhonesError,
+        } = this.state
 
         this.setState({
-            extraPhones: newPhone,
+            extraPhones: [...extraPhones, ''],
+            extraPhonesError: [...extraPhonesError, '']
         })
     }
 
@@ -233,11 +275,18 @@ class NewExam extends React.Component {
         e.stopPropagation()
 
         const index = parseInt(e.currentTarget.dataset.index, 10)
-        const { extraPhones } = this.state
+
+        const {
+            extraPhones,
+            extraPhonesError,
+        } = this.state
+
         const newExtraPhones = extraPhones.filter((number, i) => i !== index)
+        const newExtraPhonesError = extraPhonesError.filter((number, i) => i !== index)
 
         this.setState({
             extraPhones: newExtraPhones,
+            extraPhonesError: newExtraPhonesError,
         })
     }
 
@@ -262,14 +311,25 @@ class NewExam extends React.Component {
         e.stopPropagation()
 
         const { extraPhones } = this.state
-        const value = e.currentTarget.value
+        const value = e.currentTarget.value !== '(  )      -    ' ? e.currentTarget.value : ''
 
         extraPhones[index] = value
 
         this.setState({ extraPhones: extraPhones })
     }
 
-    handleDataChanged(e) {
+    handleExtraEmailChanged(e, index) {
+        e.stopPropagation()
+
+        const { extraEmails } = this.state
+        const value = e.currentTarget.value
+
+        extraEmails[index] = value
+
+        this.setState({ extraEmails: extraEmails })
+    }
+
+    handleDateChanged(e) {
         e.stopPropagation()
 
         const value = e.currentTarget.value
@@ -299,18 +359,133 @@ class NewExam extends React.Component {
         })
     }
 
-    handleSave(e) {
-        const payload = {
-            pacientName: 'teste',
-            datetime: '31/01/2018 16:55',
-            phones: ['(47) 12345-1234'],
-            emails: ['abc@abc.com'],
+    isValid() {
+        const {
+            clientName,
+            date,
+            email,
+            extraEmails,
+            extraPhones,
+            phone,
+            time,
+            extraPhonesError,
+            extraEmailsError,
+        } = this.state
+
+        let isValid = true
+
+        if (is.empty(clientName)) {
+            this.setState({ clientNameError: FORM_NOT_NULL })
+            isValid = false
+        } else {
+            this.setState({ clientNameError: '' })
         }
 
-        saveExam(payload)
+        let dateToValidate = `${date} ${time}`
+
+        if (is.empty(dateToValidate)) {
+            this.setState({ dateAndTimeError: FORM_NOT_NULL })
+            isValid = false
+        } else if (!moment(dateToValidate, 'YYYY-MM-DD HH:mm').isValid()) {
+            this.setState({ dateAndTimeError: !moment(dateToValidate, 'YYYY-MM-DD HH:mm').isValid() })
+            isValid = false
+        } else {
+            this.setState({ dateAndTimeError: '' })
+        }
+
+        if (!is.empty(phone) && !isValidPhone(phone)) {
+            this.setState({ FORM_INVALID_PHONE })
+            isValid = false
+        } else {
+            this.setState({ phoneError: '' })
+        }
+
+        for (let i = 0, total = extraPhones.length; i < total; i++) {
+            // telefones extras não podem ser vazios como o telefone pode
+            if (is.empty(extraPhones[i])) {
+                extraPhonesError[i] = FORM_NOT_NULL
+                isValid = false
+            } else if (!isValidPhone(extraPhones[i])) {
+                extraPhonesError[i] = FORM_INVALID_PHONE
+                isValid = false
+            } else {
+                extraPhonesError[i] = ''
+            }
+
+            this.setState({ extraPhonesError: extraPhonesError })
+        }
+
+        if (!is.empty(email) && !is.email(email)) {
+            this.setState({ emailError: FORM_INVALID_EMAIL })
+            isValid = false
+        } else {
+            this.setState({ emailError: '' })
+        }
+
+        for (let i = 0, total = extraEmails.length; i < total; i++) {
+            // emails extras não podem serem vazios como o email pode
+            if (is.empty(extraEmails[i])) {
+                extraEmailsError[i] = FORM_NOT_NULL
+                isValid = false
+            } else if (!is.email(extraEmails[i])) {
+                extraEmailsError[i] = FORM_INVALID_EMAIL
+                isValid = false
+            } else {
+                extraEmailsError[i] = ''
+            }
+
+            this.setState({ extraPhonesError: extraPhonesError })
+        }
+
+        // pelo menos um email ou um phone tem que ter no formulário
+        // mas só exibir o erro se o formulário tá tudo certo e só falta esse problema pra corrigir
+        if (isValid && is.empty(email) && is.empty(phone)) {
+            this.setState({
+                snackbarMessage: FORM_AT_LEAST_ONE_CONTACT,
+                snackbarOpen: true,
+            })
+        }
+
+        return isValid
+    }
+
+    handleSave(e) {
+        const {
+            clientName,
+            date,
+            email,
+            extraEmails,
+            extraPhones,
+            phone,
+            time,
+        } = this.state
+
+        if (this.isValid()) {
+            const payload = {
+                datetime: toIsoDate(`${date} ${time}`),
+                emails: [].concat(email).concat(extraEmails),
+                patientName: clientName,
+                phones: [].concat(phone).concat(extraPhones),
+            }
+
+            this.setState({ busy: true })
+
+            saveExam(payload)
+                .then(() => this.setState({ busy: false }))
+                .then(() => this.route.history.push('/dashboard'))
+                .catch(() => this.setState({ busy: false }))
+        }
     }
 
     handleSaveAndGo(e) {
+    }
+
+    handleCloseSnackbar(e, reason) {
+        if (reason === 'clickaway') {
+            return
+        }
+
+        this.setState({ snackbarOpen: false })
     }
 
     render() {
@@ -321,6 +496,7 @@ class NewExam extends React.Component {
             clientName,
             clientNameError,
             date,
+            dateAndTimeError,
             email,
             emailError,
             extraEmails,
@@ -328,18 +504,25 @@ class NewExam extends React.Component {
             extraPhones,
             phone,
             phoneError,
+            snackbarMessage,
+            snackbarOpen,
             time,
         } = this.state
 
         const phones = extraPhones.map((p, index) => {
-            const { extraPhones } = this.state
+            const {
+                extraPhones,
+                extraPhonesError,
+            } = this.state
+
             const value = extraPhones[index]
+            const error = extraPhonesError[index]
 
             return (
                 <div className={classes.inputWithAddIcon} key={`phone_key_${index}`}>
                     <FormControl>
                         <Input className={classes.telefone} inputComponent={TextMaskCustom} value={value} onChange={e => this.handleExtraPhoneChanged(e, index)} />
-                        <FormHelperText ></FormHelperText>
+                        {error && <FormHelperText error={!is.empty(error)}>{error}</FormHelperText>}
                     </FormControl>
 
                     <IconButton data-index={index} className={classes.icon} onClick={this.handleRemovePhone}>
@@ -351,12 +534,13 @@ class NewExam extends React.Component {
 
         const emails = extraEmails.map((e, index) => {
             const error = extraEmailsError[index]
+            const value = extraEmails[index]
 
             return (
                 <div className={classes.inputWithAddIcon} key={`email_key_${index}`}>
                     <FormControl>
-                        <Input className={classes.email} placeholder="exemplo@exemplo.com" value={e} />
-                        {error && <FormHelperText error={error.length !== 0}>{error}</FormHelperText>}
+                        <Input className={classes.email} placeholder="exemplo@exemplo.com" value={value} onChange={e => this.handleExtraEmailChanged(e, index)} />
+                        {error && <FormHelperText error={!is.empty(error)}>{error}</FormHelperText>}
                     </FormControl>
 
                     <IconButton data-index={index} className={classes.icon} onClick={this.handleRemoveEmail}>
@@ -368,6 +552,28 @@ class NewExam extends React.Component {
 
         return (
             <div>
+                <Snackbar
+                    anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
+                    open={snackbarOpen}
+                    autoHideDuration={6000}
+                    onClose={this.handleCloseSnackbar}
+                >
+                    <SnackbarContent
+                        className={classes.snackbar}
+                        message={snackbarMessage}
+                        action={[
+                            <IconButton
+                                key="close"
+                                aria-label="Close"
+                                color="inherit"
+                                onClick={this.handleCloseSnackbar}
+                            >
+                                <CloseIcon />
+                            </IconButton>,
+                        ]}
+                    />
+                </Snackbar>
+
                 <Grid container>
                     <Grid item xs={2}>
                         <Menu />
@@ -380,11 +586,11 @@ class NewExam extends React.Component {
                                     Novo exame
                                 </Typography>
 
-                                <Button variant="outlined" color="secondary" className={classes.button} onClick={this.handleSaveAndGo}>
+                                <Button variant="outlined" color="secondary" className={classes.button} onClick={this.handleSaveAndGo} disabled={busy}>
                                     Salvar e transmitir
                                 </Button>
 
-                                <Button variant="contained" color="secondary" className={classes.button} onClick={this.handleSave}>
+                                <Button variant="contained" color="secondary" className={classes.button} onClick={this.handleSave} disabled={busy}>
                                     Salvar exame
                                 </Button>
                             </Toolbar>
@@ -429,11 +635,11 @@ class NewExam extends React.Component {
                                             </Grid>
 
                                             <Grid item xs={7} className={classes.formRow}>
-                                                <div className={classes.dateAndTime}>
-                                                    <Input type="date" className={classes.inputDate} value={date} onChange={this.handleDataChanged} />
-
+                                                <FormControl fullWidth error={!is.empty(dateAndTimeError)} className={classes.dateAndTime}>
+                                                    <Input type="date" className={classes.inputDate} value={date} onChange={this.handleDateChanged} />
                                                     <Input type="time" className={classes.inputTime} value={time} onChange={this.handleTimeChanged} />
-                                                </div>
+                                                    {dateAndTimeError && <FormHelperText error={!is.empty(dateAndTimeError)}>{dateAndTimeError}</FormHelperText>}
+                                                </FormControl>
                                             </Grid>
 
                                             <Grid item xs={4} className={classes.formRow}>
@@ -451,9 +657,9 @@ class NewExam extends React.Component {
                                             <Grid item xs={7} className={classes.formRow}>
                                                 <div className={classes.phones}>
                                                     <div className={classes.inputWithAddIcon}>
-                                                        <FormControl error={phoneError.length !== 0}>
+                                                        <FormControl error={!is.empty(phoneError)}>
                                                             <Input value={phone} className={classes.telefone} inputComponent={TextMaskCustom} onChange={this.handlePhoneChanged} />
-                                                            <FormHelperText error={phoneError.length !== 0}>{phoneError}</FormHelperText>
+                                                            <FormHelperText error={!is.empty(phoneError)}>{phoneError}</FormHelperText>
                                                         </FormControl>
                                                     </div>
 
@@ -480,9 +686,9 @@ class NewExam extends React.Component {
                                             <Grid item xs={7} className={classes.formRow}>
                                                 <div className={classes.emails}>
                                                     <div className={classes.inputWithAddIcon}>
-                                                        <FormControl error={emailError.length !== 0}>
-                                                            <Input value={email} className={classes.email} placeholder="exemplo@exemplo.com" />
-                                                            <FormHelperText error={emailError.length !== 0}>{emailError}</FormHelperText>
+                                                        <FormControl error={!is.empty(emailError)}>
+                                                            <Input value={email} className={classes.email} placeholder="exemplo@exemplo.com" onChange={this.handleEmailChanged} />
+                                                            <FormHelperText error={!is.empty(emailError)}>{emailError}</FormHelperText>
                                                         </FormControl>
                                                     </div>
 
@@ -509,30 +715,31 @@ NewExam.propTypes = {
     busy: PropTypes.bool,
     clientName: PropTypes.string,
     clientNameError: PropTypes.string,
-    datetime: PropTypes.string,
+    datetime: PropTypes.string, // yyyy-MM-dd hh:mm
     email: PropTypes.string,
     emailError: PropTypes.string,
     extraEmails: PropTypes.arrayOf(PropTypes.string),
     extraEmailsError: PropTypes.arrayOf(PropTypes.string),
     extraPhones: PropTypes.arrayOf(PropTypes.string),
+    onSave: PropTypes.func,
     phone: PropTypes.string,
     phoneError: PropTypes.string,
-    onSave: PropTypes.func,
 }
 
 NewExam.defaultProps = {
     busy: false,
     clientName: '',
     clientNameError: '',
-    datetime: '',
+    datetime: moment().format('YYYY-MM-DD HH:mm'),
     email: '',
     emailError: '',
     extraEmails: [],
     extraEmailsError: [],
     extraPhones: [],
+    extraPhonesError: '',
+    onSave: () => console.info('NewExam:onSave is not bound!'),
     phone: '',
     phoneError: '',
-    onSave: () => console.info('NewExam:onSave is not bound!')
 }
 
 export default withStyles(styles)(NewExam)
