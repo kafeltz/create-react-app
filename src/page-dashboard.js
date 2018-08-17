@@ -131,6 +131,7 @@ class Dashboard extends Component {
         this.handleChangePage = this.handleChangePage.bind(this)
         this.handleCloseConfirmDelete = this.handleCloseConfirmDelete.bind(this)
         this.handleOpenConfirmDelete = this.handleOpenConfirmDelete.bind(this)
+        this.handleTransmission = this.handleTransmission.bind(this)
     }
 
     handleChangePage(e, page) {
@@ -174,6 +175,12 @@ class Dashboard extends Component {
             chosenId: id,
             dialogConfirmDeleteOpen: true,
         })
+    }
+
+    handleTransmission(e, id) {
+        e.stopPropagation()
+
+        this.route.history.push(`/transmission/${id}`)
     }
 
     currentPage() {
@@ -254,7 +261,7 @@ class Dashboard extends Component {
                                 <DeleteIcon />
                             </IconButton>
 
-                            <IconButton className={classes.icon}>
+                            <IconButton className={classes.icon} onClick={e => this.handleTransmission(e, x.id)}>
                                 <VideocamIcon />
                             </IconButton>
                         </TableCell>
@@ -311,7 +318,7 @@ class Dashboard extends Component {
             const filter = this.props.route.location.search.includes('filter=done') ? FILTER_RECORDED : FILTER_ALL
 
             if (this.currentPage() === PAGE_NO_EXAMS) {
-                return noExamPage
+                return noExamPage()
             } else {
                 return examPage({ filter: filter })
             }

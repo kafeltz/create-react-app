@@ -19,6 +19,8 @@ import classnames from 'classnames'
 import red from '@material-ui/core/colors/red'
 import yellow from '@material-ui/core/colors/yellow'
 
+import { Link } from 'react-router-dom'
+
 import {
     getDevicesInfo,
     getExams,
@@ -51,7 +53,10 @@ const styles = theme => ({
     },
     paper: {
         padding: theme.spacing.unit * 3,
-
+    },
+    paperWarning: {
+        padding: theme.spacing.unit * 2,
+        marginBottom: theme.spacing.unit * 1,
     },
     pageBusy: {
         opacity: 0.3,
@@ -98,8 +103,8 @@ class Transmission extends React.Component {
 
         getDevicesInfo()
             .then(response => {
-                if (response.status === 200) {
-                // if (response.status === 404) {
+                // if (response.status === 200) {
+                if (response.status === 404) {
                     // const devices = response.json()
                     const devices = [{
                         'address': 'https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8',
@@ -118,6 +123,7 @@ class Transmission extends React.Component {
             })
 
         this.state = {
+            anotherExamRunning: '',
             busy: false,
             data: [],
             devices: [],
@@ -133,6 +139,14 @@ class Transmission extends React.Component {
             this.setState({ data: data })
 
             const exam = data.find(x => x.id === this.state.id)
+
+            const anotherExamRunning = data.find(x => x.id !== this.state.id && x.running)
+
+            if (anotherExamRunning) {
+                this.setState({
+                    anotherExamRunning: anotherExamRunning.id,
+                })
+            }
 
             if (exam) {
                 this.setState({
@@ -197,6 +211,7 @@ class Transmission extends React.Component {
         } = this.props
 
         const {
+            anotherExamRunning,
             busy,
             devices,
             patientEmails,
@@ -254,7 +269,7 @@ class Transmission extends React.Component {
                                     color="secondary"
                                     onClick={this.handleStartTransmission}
                                     variant="contained"
-                                    disabled={is.empty(devices)}
+                                    disabled={is.empty(devices) || !is.empty(anotherExamRunning)}
                                 >
                                     {buttonLabel}
                                 </Button>
@@ -262,7 +277,26 @@ class Transmission extends React.Component {
                         </AppBar>
 
                         <Grid container className={classes.grid} justify="center">
-                            <Grid item lg={5} md={10} sm={12} >
+                            <Grid item lg={5} md={10} sm={12}>
+                                {anotherExamRunning && (
+                                    <Paper className={classes.paperWarning}>
+                                        <Typography color="error">
+                                            Está sendo transmitido um exame, você deve primeiro finalizá-lo.
+
+                                            <Button
+                                                component={Link}
+                                                to={`/transmission/${anotherExamRunning}`}
+                                                className={classes.button}
+                                                color="primary"
+                                                onClick={e => document.location.reload()}
+                                            >
+                                                Abrir exame
+                                            </Button>
+
+                                        </Typography>
+                                    </Paper>
+                                )}
+
                                 <Paper className={classes.paper}>
                                     {player()}
 
