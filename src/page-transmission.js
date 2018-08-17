@@ -1,34 +1,47 @@
 import React from 'react'
+import PropTypes from 'prop-types'
+import is from 'is_js'
+import Hls from 'hls.js'
 
+import AppBar from '@material-ui/core/AppBar'
+import Button from '@material-ui/core/Button'
+import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
+import Toolbar from '@material-ui/core/Toolbar'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
-import PropTypes from 'prop-types'
-import Grid from '@material-ui/core/Grid'
-import Button from '@material-ui/core/Button'
-import Input from '@material-ui/core/Input'
-import InputLabel from '@material-ui/core/InputLabel'
-import FormHelperText from '@material-ui/core/FormHelperText'
-import FormControl from '@material-ui/core/FormControl'
-import CircularProgress from '@material-ui/core/CircularProgress'
-import red from '@material-ui/core/colors/red'
+
 import SvgIcon from '@material-ui/core/SvgIcon'
-import ContactSupportIcon from '@material-ui/icons/ContactSupport'
-import Toolbar from '@material-ui/core/Toolbar'
-import AppBar from '@material-ui/core/AppBar'
-import classNames from 'classnames'
+import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord'
+
+import classnames from 'classnames'
+
+import red from '@material-ui/core/colors/red'
+import yellow from '@material-ui/core/colors/yellow'
+
+import {
+    getDevicesInfo,
+    getExams,
+    startExam,
+    stopExam,
+} from './lib/api.js'
+
+import { toDate } from './lib/date.js'
 
 import Menu from './component-menu.js'
 
 const styles = theme => ({
     appbar: {
         background: 'white',
-        boxShadow: 'unset',
         borderBottom: '1px solid #e0e0e0',
+        boxShadow: 'unset',
     },
     button: {
         marginLeft: theme.spacing.unit,
         marginRight: theme.spacing.unit,
+    },
+    buttonTransmitting: {
+        background: 'red',
     },
     flex: {
         flexGrow: 1,
@@ -38,33 +51,183 @@ const styles = theme => ({
     },
     paper: {
         padding: theme.spacing.unit * 3,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+
     },
     pageBusy: {
         opacity: 0.3,
         pointerEvents: 'none',
     },
     player: {
-        width: 400,
-        height: 300,
         background: '#000',
+        height: 'auto',
+        minHeight: 333,
+        marginBottom: theme.spacing.unit * 3,
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        position: 'relative',
+        width: '100%',
+    },
+    playerNoDeviceMessage: {
+        bottom: 0,
+        color: '#fff',
+        display: 'block',
+        height: 30,
+        margin: 'auto',
+        position: 'absolute',
+        textAlign: 'center',
+        top: 0,
+        width: '100%',
+    },
+    statusIcon: {
+        fontSize: 36,
+        marginRight: 5,
+    },
+    statusIdle: {
+        fill: yellow[500],
+    },
+    statusTransmitting: {
+        fill: red[500],
     },
 })
+
+const hls = new Hls()
 
 class Transmission extends React.Component {
     constructor(props) {
         super(props)
 
-        this.state = {}
+        getDevicesInfo()
+            .then(response => {
+                if (response.status === 200) {
+                // if (response.status === 404) {
+                    // const devices = response.json()
+                    const devices = [{
+                        'address': 'https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8',
+                        'id': 'f0e4fd5e-c3f5-4b13-8591-4099aaecc83d',
+                    }]
+
+                    hls.loadSource(devices[0].address)
+
+                    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                        this.setState({ playing: true })
+                    })
+
+                    this.setState({ devices: devices })
+                } else if (response.status === 404) {
+                }
+            })
+
+        this.state = {
+            busy: false,
+            data: [],
+            devices: [],
+            id: props.route.match.params.id,
+            patientEmails: props.patientEmails,
+            patientName: props.patientName,
+            patientPhones: props.patientPhones,
+            patientScheduled: props.patientScheduled,
+            playing: false,
+        }
+
+        getExams().then(data => {
+            this.setState({ data: data })
+
+            const exam = data.find(x => x.id === this.state.id)
+
+            if (exam) {
+                this.setState({
+                    // patientEmails: exam.emails,
+                    patientEmails: ['abc@abc.com', 'xyz@xyz.com'],
+                    patientName: exam.patient,
+                    //patientPhones: exam.phones,
+                    patientPhones: ['(47) 98877-6655'],
+                    patientScheduled: exam.scheduled,
+                })
+            }
+        })
+
+        this.playerDom = React.createRef()
+
+        this.attached = false
+
+        this.handleStartTransmission = this.handleStartTransmission.bind(this)
+    }
+
+    handleStartTransmission(e) {
+        e.stopPropagation()
+
+        const {
+            id,
+            busy,
+        } = this.state
+
+        if (busy) {
+            this.setState({ busy: false })
+
+            stopExam(id)
+                .then(response => {
+                    if (response.status === 200) {
+                    } else if (response.status === 400) {
+                    } else if (response.status === 404) {
+                    } else if (response.status === 409) {
+                    }
+
+                    return response
+                })
+        } else {
+            this.setState({ busy: true })
+
+            startExam(id)
+                .then(response => {
+                    if (response.status === 200) {
+                    } else if (response.status === 400) {
+                    } else if (response.status === 404) {
+                    } else if (response.status === 409) {
+                    }
+
+                    return response
+                })
+        }
+
     }
 
     render() {
         const {
             classes,
-            name,
         } = this.props
+
+        const {
+            busy,
+            devices,
+            patientEmails,
+            patientName,
+            patientPhones,
+            patientScheduled,
+            playing,
+        } = this.state
+
+        if (playing && !this.attached) {
+            hls.attachMedia(this.playerDom.current)
+            this.playerDom.current.play()
+
+            this.attached = true
+        }
+
+        const player = () => {
+            if (is.empty(devices)) {
+                return (
+                    <div className={classes.player}>
+                        <Typography variant="subheading" className={classes.playerNoDeviceMessage}>Dispositivo de transmissão não encontrado!</Typography>
+                    </div>
+                )
+            } else {
+                return (
+                    <video ref={this.playerDom} className={classes.player} muted autoPlay />
+                )
+            }
+        }
+
+        const buttonLabel = busy ? 'Finalizar transmissão' : 'Iniciar transmissão'
 
         return (
             <div>
@@ -77,24 +240,40 @@ class Transmission extends React.Component {
                         <AppBar position="static" className={classes.appbar}>
                             <Toolbar>
                                 <div className={classes.flex}>
-                                    <Typography variant="subheading" color="textPrimary">
-                                        Paciente
-                                    </Typography>
-
-                                    <Typography variant="headline" color="textSecondary">
-                                        {name}
+                                    <Typography variant="title">
+                                        {patientName}
                                     </Typography>
                                 </div>
-                                <Button variant="contained" color="secondary" className={classes.button} onClick={this.handleSaveAndGo}>
-                                    Iniciar transmissão
+
+                                <SvgIcon className={classes.statusIcon}>
+                                    <FiberManualRecordIcon className={classnames({ [classes.statusIdle]: !busy }, { [classes.statusTransmitting]: busy })} />
+                                </SvgIcon>
+
+                                <Button
+                                    className={classes.button}
+                                    color="secondary"
+                                    onClick={this.handleStartTransmission}
+                                    variant="contained"
+                                    disabled={is.empty(devices)}
+                                >
+                                    {buttonLabel}
                                 </Button>
                             </Toolbar>
                         </AppBar>
 
                         <Grid container className={classes.grid} justify="center">
-                            <Grid item lg={6} md={12} sm={12} >
+                            <Grid item lg={5} md={10} sm={12} >
                                 <Paper className={classes.paper}>
-                                    <div id="player" className={classes.player}></div>
+                                    {player()}
+
+                                    <Typography variant="body2">Data e hora</Typography>
+                                    <Typography variant="body1" paragraph={true}>{toDate(patientScheduled)}</Typography>
+
+                                    <Typography variant="body2">E-mail</Typography>
+                                    <Typography variant="body1" paragraph={true}>{patientEmails.join(', ')}</Typography>
+
+                                    <Typography variant="body2">Telefone</Typography>
+                                    <Typography variant="body1" paragraph={true}>{patientPhones.join(', ')}</Typography>
                                 </Paper>
                             </Grid>
                         </Grid>
@@ -107,11 +286,15 @@ class Transmission extends React.Component {
 
 Transmission.propTypes = {
     classes: PropTypes.object.isRequired,
-    name: PropTypes.string,
+    patientEmails: PropTypes.arrayOf(PropTypes.string),
+    patientName: PropTypes.string,
+    patientPhones: PropTypes.arrayOf(PropTypes.string),
 }
 
 Transmission.defaultProps = {
-    name: 'Paciente',
+    patientEmails: [],
+    patientName: 'Paciente',
+    patientPhones: [],
 }
 
 export default withStyles(styles)(Transmission)

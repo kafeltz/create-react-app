@@ -64,6 +64,8 @@ function startExam(examId) {
     const method = 'POST'
     const headers = new Headers()
 
+    headers.append('content-type', 'application/json;charset=UTF-8')
+
     const params = {
         headers: headers,
         method: method,
@@ -72,15 +74,59 @@ function startExam(examId) {
     return fetch(url, params)
 }
 
-// Finaliza o exame
-// Arquiva o exame
-// Reenvia dados do exame
+function stopExam(examId) {
+    const url = `${BASE_URL}/exam/${examId}/stop`
+    const method = 'POST'
+    const headers = new Headers()
 
+    headers.append('content-type', 'application/json;charset=UTF-8')
 
+    const params = {
+        headers: headers,
+        method: method,
+    }
+
+    return fetch(url, params)
+}
+
+// Arquivar um exame
+function disableExam(examId) {
+    const url = `${BASE_URL}/exam/${examId}/disable`
+    const method = 'POST'
+    const headers = new Headers()
+
+    headers.append('content-type', 'application/json;charset=UTF-8')
+
+    const params = {
+        headers: headers,
+        method: method,
+    }
+
+    return fetch(url, params)
+}
+
+// Device Info
+function getDevicesInfo() {
+    const url = `${BASE_URL}/device/info`
+    const method = 'GET'
+    const headers = new Headers()
+
+    headers.append('content-type', 'application/json;charset=UTF-8')
+
+    const params = {
+        headers: headers,
+        method: method,
+    }
+
+    return fetch(url, params)
+}
 
 export {
-    saveExam,
+    disableExam,
+    getDevicesInfo,
     getExams,
+    saveExam,
     startExam,
+    stopExam,
 }
 

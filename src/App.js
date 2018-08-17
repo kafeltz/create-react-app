@@ -4,12 +4,12 @@ import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
 
 import CssBaseline from '@material-ui/core/CssBaseline'
 
-import PageHome from './page-home.js'
-import PageDashboard from './page-dashboard.js'
-import PageNewExam from './page-new-exam.js'
-import PageToken from './page-token.js'
-import PagePlaygrounds from './page-playgrounds.js'
 import PageConfig from './page-config.js'
+import PageDashboard from './page-dashboard.js'
+import PageHome from './page-home.js'
+import PageNewExam from './page-new-exam.js'
+import PagePlaygrounds from './page-playgrounds.js'
+import PageToken from './page-token.js'
 import PageTransmission from './page-transmission.js'
 
 import './App.css'
@@ -61,17 +61,6 @@ class App extends Component {
     }
 
     render() {
-        const newExamData = {}
-
-        // const newExamData = {
-            // clientName: 'Lorem Ipsum',
-            // datetime: '2018-08-15 16:21',
-            // email: 'um@email.com',
-            // extraEmails: ['dois@email.com'],
-            // phone: '(47) 12345-6789',
-            // extraPhones: ['(47) 55555-6666'],
-        // }
-
         return (
             <MuiThemeProvider theme={theme}>
                 <Router>
@@ -79,11 +68,11 @@ class App extends Component {
                         <CssBaseline />
 
                         <Route exact path="/" component={PageHome} />
-                        <Route path="/dashboard" render={ props => <PageDashboard route={{...props}} {...newExamData} /> } />
-                        <Route path="/new-exam" render={ props => <PageNewExam route={{...props}} {...newExamData} /> } />
+                        <Route path="/dashboard" render={ props => <PageDashboard route={{...props}} /> } />
+                        <Route path="/new-exam" render={ props => <PageNewExam route={{...props}} /> } />
                         <Route path="/token" component={PageToken} />
                         <Route path="/config" component={PageConfig} />
-                        <Route path="/transmission" component={PageTransmission} />
+                        <Route path="/transmission/:id" render={ props => <PageTransmission route={{...props}} /> } />
 
                         <Route path="/playgrounds" component={PagePlaygrounds} />
                     </React.Fragment>

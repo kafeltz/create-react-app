@@ -34,7 +34,11 @@ import emptyImage from './assets/doctor.svg'
 
 import Menu from './component-menu.js'
 
-import { getExams } from './lib/api.js'
+import {
+    disableExam,
+    getExams,
+} from './lib/api.js'
+
 import { toDate } from './lib/date.js'
 
 const FILTER_ALL = 'FILTER_ALL'
@@ -114,7 +118,6 @@ class Dashboard extends Component {
 
         this.state = {
             chosenId: '', // qual id do exame que foi selecionado na hora de clicar em algum botão de ação que abrirá o dialog (como o excluir)
-            currentPage: PAGE_EXAMS,
             data: [],
             dialogConfirmDeleteOpen: false,
             page: 0,
@@ -123,17 +126,7 @@ class Dashboard extends Component {
 
         const exams = getExams()
 
-        exams.then(data => {
-            this.setState({ data: data })
-
-            if (is.empty(data)) {
-                this.setState({ currentPage: PAGE_NO_EXAMS })
-            } else if (this.route.location.search.includes('filter=done')) {
-                this.setState({ currentPage: PAGE_RECORDED_EXAMS })
-            } else {
-                this.setState({ currentPage: PAGE_EXAMS })
-            }
-        })
+        exams.then(data => this.setState({ data: data }))
 
         this.handleChangePage = this.handleChangePage.bind(this)
         this.handleCloseConfirmDelete = this.handleCloseConfirmDelete.bind(this)
@@ -146,8 +139,27 @@ class Dashboard extends Component {
         this.setState({ page })
     }
 
-    handleCloseConfirmDelete(e) {
+    removeExam(id) {
+        const { data } = this.state
+
+        const newData = data.filter(x => x.id !== id)
+
+        this.setState({ data: newData })
+    }
+
+    handleCloseConfirmDelete(e, deleteAndClose) {
+        const { chosenId } = this.state
+
         e.stopPropagation()
+
+        if (deleteAndClose) {
+            disableExam(chosenId)
+                .then(response => {
+                    if (response.status === 200) {
+                        this.removeExam(chosenId)
+                    }
+                })
+        }
 
         this.setState({
             chosenId: '',
@@ -164,11 +176,22 @@ class Dashboard extends Component {
         })
     }
 
+    currentPage() {
+        const { data } = this.state
+
+        if (is.empty(data)) {
+            return PAGE_NO_EXAMS
+        } else if (this.props.route.location.search.includes('filter=done')) {
+            return PAGE_RECORDED_EXAMS
+        } else {
+            return PAGE_EXAMS
+        }
+    }
+
     render() {
         const { classes } = this.props
 
         const {
-            currentPage,
             data,
             dialogConfirmDeleteOpen,
             page,
@@ -181,17 +204,21 @@ class Dashboard extends Component {
             </Button>
         )
 
-        const noExamPage = (
-            <div className={classes.noExamPage}>
-                <img className={classes.emptyImage} src={emptyImage} alt="" />
+        const noExamPage = () => {
+            const title = this.currentPage() === PAGE_EXAMS ? 'Não há exames agendados' : 'Não há exames gravados'
 
-                <Typography color="textPrimary" variant="title" className={classes.text}>
-                    Não há exames agendados
-                </Typography>
+            return (
+                <div className={classes.noExamPage}>
+                    <img className={classes.emptyImage} src={emptyImage} alt="" />
 
-                {newButton}
-            </div>
-        )
+                    <Typography color="textPrimary" variant="title" className={classes.text}>
+                        {title}
+                    </Typography>
+
+                    {newButton}
+                </div>
+            )
+        }
 
         const examPage = ({ filter }) => {
             let rows = []
@@ -281,19 +308,17 @@ class Dashboard extends Component {
         }
 
         const renderPage = () => {
-            if (currentPage === PAGE_EXAMS) {
-                return examPage({ filter: FILTER_ALL })
-            } else if (currentPage === PAGE_RECORDED_EXAMS) {
-                return examPage({ filter: FILTER_RECORDED })
-            } else if (currentPage === PAGE_NO_EXAMS) {
+            const filter = this.props.route.location.search.includes('filter=done') ? FILTER_RECORDED : FILTER_ALL
+
+            if (this.currentPage() === PAGE_NO_EXAMS) {
                 return noExamPage
             } else {
-                throw new Error('Era esperado alguma página!')
+                return examPage({ filter: filter })
             }
         }
 
         const pageTitle = () => {
-            if (currentPage === PAGE_RECORDED_EXAMS) {
+            if (this.currentPage() === PAGE_RECORDED_EXAMS) {
                 return 'Exames gravados'
             } else {
                 return 'Exames agendados'
@@ -334,7 +359,7 @@ class Dashboard extends Component {
 
                 <Dialog
                     open={dialogConfirmDeleteOpen}
-                    onClose={this.handleCloseConfirmDelete}
+                    onClose={e => this.handleCloseConfirmDelete(e, false)}
                 >
                     <DialogTitle>Deseja apagar este exame?</DialogTitle>
 
@@ -345,11 +370,11 @@ class Dashboard extends Component {
                     </DialogContent>
 
                     <DialogActions>
-                        <Button onClick={this.handleCloseConfirmDelete} color="primary">
+                        <Button onClick={e => this.handleCloseConfirmDelete(e, false)} color="primary">
                             Cancelar
                         </Button>
 
-                        <Button onClick={this.handleCloseConfirmDelete} color="primary">
+                        <Button onClick={e => this.handleCloseConfirmDelete(e, true)} color="primary">
                             Apagar
                         </Button>
                     </DialogActions>
