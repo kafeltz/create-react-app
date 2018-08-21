@@ -31,7 +31,9 @@ import {
 import Menu from './component-menu.js'
 import { toDate } from './lib/date.js'
 
-import appEvents from './events.js'
+import {
+    events as appEvents,
+} from './events.js'
 
 import {
     attachMedia,

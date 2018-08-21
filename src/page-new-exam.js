@@ -1,35 +1,38 @@
 import MaskedInput from 'react-text-mask'
 import PropTypes from 'prop-types'
 import React from 'react'
+import moment from 'moment'
 
 import AppBar from '@material-ui/core/AppBar'
 import Button from '@material-ui/core/Button'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import classNames from 'classnames'
 import ClearIcon from '@material-ui/icons/Clear'
-import FormControl from '@material-ui/core/FormControl'
 import CloseIcon from '@material-ui/icons/Close'
-
+import FormControl from '@material-ui/core/FormControl'
 import FormHelperText from '@material-ui/core/FormHelperText'
 import Grid from '@material-ui/core/Grid'
 import IconButton from '@material-ui/core/IconButton'
 import Input from '@material-ui/core/Input'
 import Paper from '@material-ui/core/Paper'
+import Snackbar from '@material-ui/core/Snackbar'
+import SnackbarContent from '@material-ui/core/SnackbarContent'
 import Toolbar from '@material-ui/core/Toolbar'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
-import Snackbar from '@material-ui/core/Snackbar'
-import SnackbarContent from '@material-ui/core/SnackbarContent'
 
-import moment from 'moment'
+import {
+    events as appEvents,
+    SNACK_ERROR,
+    SNACK_SUCCESS,
+} from './events.js'
+
 import Menu from './component-menu.js'
 
 import {
     saveExam,
     NEED_BE_IN_FUTURE,
 } from './lib/api.js'
-
-import { toIsoDate } from './lib/date.js'
 
 import is from 'is_js'
 
@@ -208,6 +211,8 @@ class NewExam extends React.Component {
             snackbarOpen: false,
             time: props.datetime.split(' ')[1],
         }
+
+        appEvents.emit('CAN_RENDER_FLOAT_PLAYER', true)
 
         this.route = props.route
 
@@ -490,6 +495,7 @@ class NewExam extends React.Component {
             .then(response => {
                 if (response.status === 201) {
                     this.route.history.push('/dashboard')
+                    appEvents.emit(SNACK_SUCCESS, 'Exame cadastrado com sucesso!')
                 } else if (response.status === 400) {
                     response.json().then(json => {
                         if (json.error['scheduled'] === NEED_BE_IN_FUTURE) {

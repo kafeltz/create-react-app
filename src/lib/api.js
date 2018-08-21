@@ -145,11 +145,29 @@ function getExamRunning() {
         })
 }
 
+
+// /exam/{examId}/notify
+function notifyExam(examId) {
+    const url = `${BASE_URL}/exam/${examId}/notify`
+    const method = 'POST'
+    const headers = new Headers()
+
+    headers.append('content-type', 'application/json;charset=UTF-8')
+
+    const params = {
+        headers: headers,
+        method: method,
+    }
+
+    return fetch(url, params)
+}
+
 export {
     disableExam,
     getDevicesInfo,
-    getExams,
     getExamRunning,
+    getExams,
+    notifyExam,
     saveExam,
     startExam,
     stopExam,

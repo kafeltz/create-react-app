@@ -3,6 +3,10 @@ import { BrowserRouter as Router, Route } from 'react-router-dom'
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
 
 import CssBaseline from '@material-ui/core/CssBaseline'
+import Snackbar from '@material-ui/core/Snackbar'
+import SnackbarContent from '@material-ui/core/SnackbarContent'
+import IconButton from '@material-ui/core/IconButton'
+import CloseIcon from '@material-ui/icons/Close'
 
 import PageConfig from './page-config.js'
 import PageDashboard from './page-dashboard.js'
@@ -13,6 +17,7 @@ import PageToken from './page-token.js'
 import PageTransmission from './page-transmission.js'
 
 import Player from './component-player.js'
+import Snack from './component-snack.js'
 
 import {
     attachMedia,
@@ -24,7 +29,12 @@ import {
     getDevicesInfo,
 } from './lib/api.js'
 
-import appEvents from './events.js'
+import {
+    API_ERROR,
+    events as appEvents,
+    SNACK_ERROR,
+    SNACK_SUCCESS,
+} from './events.js'
 
 import './App.css'
 import 'typeface-roboto'
@@ -82,13 +92,16 @@ class App extends Component {
             playerIsReadyToPlay: false,
             playerOpen: false,
             tokenIsValid: false,
+            snackbarOpen: false,
+            snackbarMessage: '',
         }
 
         this.videoDom = null
         this.router = React.createRef()
 
-        this.handlePlayerClick = this.handlePlayerClick.bind(this)
         this.getVideoDomElement = this.getVideoDomElement.bind(this)
+        this.handleCloseSnackbar = this.handleCloseSnackbar.bind(this)
+        this.handlePlayerClick = this.handlePlayerClick.bind(this)
 
         appEvents.on('TRANSMISSION_STARTED', ({ examId, deviceM3U8 }) => {
             this.setState({
@@ -115,6 +128,23 @@ class App extends Component {
             }
         })
 
+        appEvents.on(API_ERROR, context => {
+            this.setState({
+                snackbarMessage: 'Ocorreu um erro inesperado',
+                snackbarOpen: true,
+            })
+
+            console.error('API_ERROR', context)
+        })
+
+        appEvents.on(SNACK_SUCCESS, message => {
+            this.setState({
+                snackbarMessage: message,
+                snackbarOpen: true,
+                snackbarType: 'success',
+            })
+        })
+
         getDevicesInfo()
             .then(response => {
                 if (response.status === 404) {
@@ -126,6 +156,10 @@ class App extends Component {
                     this.setState({ devices: devices })
                 }
             })
+    }
+
+    handleCloseSnackbar() {
+        this.setState({ snackbarOpen: false })
     }
 
     handlePlayerClick() {
@@ -154,8 +188,11 @@ class App extends Component {
         const {
             canRenderFloatPlayer,
             examIdTransmitting,
-            isTransmitting,
             exams,
+            isTransmitting,
+            snackbarMessage,
+            snackbarOpen,
+            snackbarType,
         } = this.state
 
         let player = (null)
@@ -197,6 +234,8 @@ class App extends Component {
                         <Route path="/playgrounds" component={PagePlaygrounds} />
 
                         {canRenderFloatPlayer && player}
+
+                        <Snack type={snackbarType} onClose={this.handleCloseSnackbar} snackbarMessage={snackbarMessage} snackbarOpen={snackbarOpen} />
                     </React.Fragment>
                 </Router>
             </MuiThemeProvider>

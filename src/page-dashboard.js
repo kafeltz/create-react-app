@@ -34,11 +34,15 @@ import emptyImage from './assets/doctor.svg'
 
 import Menu from './component-menu.js'
 
-import appEvents from './events.js'
+import {
+    events as appEvents,
+    API_ERROR,
+} from './events.js'
 
 import {
     disableExam,
     getExams,
+    notifyExam,
 } from './lib/api.js'
 
 import { toDate } from './lib/date.js'
@@ -122,6 +126,7 @@ class Dashboard extends Component {
             chosenId: '', // qual id do exame que foi selecionado na hora de clicar em algum botão de ação que abrirá o dialog (como o excluir)
             data: [],
             dialogConfirmDeleteOpen: false,
+            dialogConfirmResendOpen: false,
             page: 0,
             rowsPerPage: 10,
         }
@@ -134,7 +139,9 @@ class Dashboard extends Component {
 
         this.handleChangePage = this.handleChangePage.bind(this)
         this.handleCloseConfirmDelete = this.handleCloseConfirmDelete.bind(this)
+        this.handleCloseConfirmResend = this.handleCloseConfirmResend.bind(this)
         this.handleOpenConfirmDelete = this.handleOpenConfirmDelete.bind(this)
+        this.handleOpenConfirmResend = this.handleOpenConfirmResend.bind(this)
         this.handleTransmission = this.handleTransmission.bind(this)
     }
 
@@ -152,12 +159,12 @@ class Dashboard extends Component {
         this.setState({ data: newData })
     }
 
-    handleCloseConfirmDelete(e, deleteAndClose) {
+    handleCloseConfirmDelete(e, resendAndClose) {
         const { chosenId } = this.state
 
         e.stopPropagation()
 
-        if (deleteAndClose) {
+        if (resendAndClose) {
             disableExam(chosenId)
                 .then(response => {
                     if (response.status === 200) {
@@ -168,7 +175,38 @@ class Dashboard extends Component {
 
         this.setState({
             chosenId: '',
-            dialogConfirmDeleteOpen: false,
+            dialogConfirmResendOpen: false,
+        })
+    }
+
+    handleCloseConfirmResend(e, deleteAndClose) {
+        const { chosenId } = this.state
+
+        e.stopPropagation()
+
+        if (deleteAndClose) {
+            notifyExam(chosenId)
+                .then(response => {
+                    switch(response.status) {
+                    case 200:
+                    case 202:
+
+                    case 400:
+                    case 404:
+                    default:
+                        appEvents.emit(API_ERROR, {
+                            method: 'disableExam',
+                            params: [{ chosenId: chosenId }],
+                            status: response.status,
+                        })
+                        break
+                    }
+                })
+        }
+
+        this.setState({
+            chosenId: '',
+            dialogConfirmResendOpen: false,
         })
     }
 
@@ -178,6 +216,15 @@ class Dashboard extends Component {
         this.setState({
             chosenId: id,
             dialogConfirmDeleteOpen: true,
+        })
+    }
+
+    handleOpenConfirmResend(e, id) {
+        e.stopPropagation()
+
+        this.setState({
+            chosenId: id,
+            dialogConfirmResendOpen: true,
         })
     }
 
@@ -205,6 +252,7 @@ class Dashboard extends Component {
         const {
             data,
             dialogConfirmDeleteOpen,
+            dialogConfirmResendOpen,
             page,
             rowsPerPage,
         } = this.state
@@ -257,7 +305,7 @@ class Dashboard extends Component {
                         </TableCell>
 
                         <TableCell numeric={true}>
-                            <IconButton className={classes.icon}>
+                            <IconButton className={classes.icon} onClick={e => this.handleOpenConfirmResend(e, x.id)}>
                                 <ShareIcon />
                             </IconButton>
 
@@ -387,6 +435,29 @@ class Dashboard extends Component {
 
                         <Button onClick={e => this.handleCloseConfirmDelete(e, true)} color="primary">
                             Apagar
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
+                <Dialog
+                    open={dialogConfirmResendOpen}
+                    onClose={e => this.handleCloseConfirmResend(e, false)}
+                >
+                    <DialogTitle>Reenvio de notificação</DialogTitle>
+
+                    <DialogContent>
+                        <DialogContentText>
+                            Deseja enviar novamente a notificação via SMS/E-mail?
+                        </DialogContentText>
+                    </DialogContent>
+
+                    <DialogActions>
+                        <Button onClick={e => this.handleCloseConfirmResend(e, false)} color="primary">
+                            Cancelar
+                        </Button>
+
+                        <Button onClick={e => this.handleCloseConfirmResend(e, true)} color="primary">
+                            Reenviar
                         </Button>
                     </DialogActions>
                 </Dialog>
