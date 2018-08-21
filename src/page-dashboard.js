@@ -34,6 +34,8 @@ import emptyImage from './assets/doctor.svg'
 
 import Menu from './component-menu.js'
 
+import appEvents from './events.js'
+
 import {
     disableExam,
     getExams,
@@ -127,6 +129,8 @@ class Dashboard extends Component {
         const exams = getExams()
 
         exams.then(data => this.setState({ data: data }))
+
+        appEvents.emit('CAN_RENDER_FLOAT_PLAYER', true)
 
         this.handleChangePage = this.handleChangePage.bind(this)
         this.handleCloseConfirmDelete = this.handleCloseConfirmDelete.bind(this)

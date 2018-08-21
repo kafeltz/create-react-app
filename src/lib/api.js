@@ -121,10 +121,35 @@ function getDevicesInfo() {
     return fetch(url, params)
 }
 
+function getExamRunning() {
+    const url = `${BASE_URL}/exam/running`
+    const method = 'GET'
+    const headers = new Headers()
+
+    headers.append('content-type', 'application/json;charset=UTF-8')
+
+    const params = {
+        headers: headers,
+        method: method,
+    }
+
+    return fetch(url, params)
+        .then(response => {
+            if (response.status === 200) {
+                return response.json()
+            } else if (response.status === 404) {
+                return { id: '' }
+            } else {
+                throw new Error(`HTTP STATUS NOT EXPECTED: ${response.status}`)
+            }
+        })
+}
+
 export {
     disableExam,
     getDevicesInfo,
     getExams,
+    getExamRunning,
     saveExam,
     startExam,
     stopExam,

@@ -1,36 +1,44 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import is from 'is_js'
-import Hls from 'hls.js'
+import classnames from 'classnames'
+import { Link } from 'react-router-dom'
 
 import AppBar from '@material-ui/core/AppBar'
 import Button from '@material-ui/core/Button'
+import CloseIcon from '@material-ui/icons/Close'
+import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord'
 import Grid from '@material-ui/core/Grid'
+import IconButton from '@material-ui/core/IconButton'
 import Paper from '@material-ui/core/Paper'
+import red from '@material-ui/core/colors/red'
+import Snackbar from '@material-ui/core/Snackbar'
+import SnackbarContent from '@material-ui/core/SnackbarContent'
+import SvgIcon from '@material-ui/core/SvgIcon'
 import Toolbar from '@material-ui/core/Toolbar'
 import Typography from '@material-ui/core/Typography'
-import { withStyles } from '@material-ui/core/styles'
-
-import SvgIcon from '@material-ui/core/SvgIcon'
-import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord'
-
-import classnames from 'classnames'
-
-import red from '@material-ui/core/colors/red'
 import yellow from '@material-ui/core/colors/yellow'
-
-import { Link } from 'react-router-dom'
+import green from '@material-ui/core/colors/green'
+import { withStyles } from '@material-ui/core/styles'
 
 import {
     getDevicesInfo,
+    getExamRunning,
     getExams,
     startExam,
     stopExam,
 } from './lib/api.js'
-
+import Menu from './component-menu.js'
 import { toDate } from './lib/date.js'
 
-import Menu from './component-menu.js'
+import appEvents from './events.js'
+
+import {
+    attachMedia,
+    detachMedia,
+    events,
+    loadSource,
+} from './hls-instance.js'
 
 const styles = theme => ({
     appbar: {
@@ -83,6 +91,12 @@ const styles = theme => ({
         top: 0,
         width: '100%',
     },
+    snackbarError: {
+        backgroundColor: red[600],
+    },
+    snackbarSuccess: {
+        backgroundColor: green[600],
+    },
     statusIcon: {
         fontSize: 36,
         marginRight: 5,
@@ -94,8 +108,6 @@ const styles = theme => ({
         fill: red[500],
     },
 })
-
-const hls = new Hls()
 
 class Transmission extends React.Component {
     constructor(props) {
@@ -111,9 +123,10 @@ class Transmission extends React.Component {
                         'id': 'f0e4fd5e-c3f5-4b13-8591-4099aaecc83d',
                     }]
 
-                    hls.loadSource(devices[0].address)
+                    loadSource(devices[0].address)
 
-                    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    events.on('MANIFEST_PARSED', () => {
+                        console.warn('MANIFEST_PARSED')
                         this.setState({ playing: true })
                     })
 
@@ -123,16 +136,20 @@ class Transmission extends React.Component {
             })
 
         this.state = {
-            anotherExamRunning: '',
-            busy: false,
+            busy: props.parentProps.isTransmitting && props.route.match.params.id === props.parentProps.examIdTransmitting,
             data: [],
             devices: [],
+            examIdRunning: '',
+            examIdTransmitting: '',
             id: props.route.match.params.id,
             patientEmails: props.patientEmails,
             patientName: props.patientName,
             patientPhones: props.patientPhones,
             patientScheduled: props.patientScheduled,
             playing: false,
+            snackbarClass: props.classes.snackbarSuccess,
+            snackbarMessage: '',
+            snackbarOpen: false,
         }
 
         getExams().then(data => {
@@ -140,31 +157,66 @@ class Transmission extends React.Component {
 
             const exam = data.find(x => x.id === this.state.id)
 
-            const anotherExamRunning = data.find(x => x.id !== this.state.id && x.running)
-
-            if (anotherExamRunning) {
-                this.setState({
-                    anotherExamRunning: anotherExamRunning.id,
-                })
-            }
-
             if (exam) {
                 this.setState({
-                    // patientEmails: exam.emails,
-                    patientEmails: ['abc@abc.com', 'xyz@xyz.com'],
+                    patientEmails: exam.emails,
                     patientName: exam.patient,
-                    //patientPhones: exam.phones,
-                    patientPhones: ['(47) 98877-6655'],
+                    patientPhones: exam.phones,
                     patientScheduled: exam.scheduled,
                 })
             }
         })
 
+        getExamRunning().then(data => {
+            const { id } = this.state
+
+            this.setState({ examIdRunning: data.id })
+
+            if (data.id === id) {
+                this.setState({ busy: id })
+            }
+        })
+
         this.playerDom = React.createRef()
 
-        this.attached = false
+        appEvents.emit('CAN_RENDER_FLOAT_PLAYER', false)
 
+        this.handleCloseSnackbar = this.handleCloseSnackbar.bind(this)
         this.handleStartTransmission = this.handleStartTransmission.bind(this)
+    }
+
+    componentWillUnmount() {
+        // esta tela de transmissão ao ser abandonada (trocar de rota) deve liberar os recursos do player
+        // diferente do float player que é compartilhado por várias rotas e não precisa liberar os recursos
+        detachMedia()
+    }
+
+    handleCloseSnackbar(e, reason) {
+        if (reason === 'clickaway') {
+            return
+        }
+
+        this.setState({ snackbarOpen: false })
+    }
+
+    handle409Start() {
+        const { snackbarError } = this.props.classes
+
+        this.setState({
+            snackbarClass: snackbarError,
+            snackbarMessage: 'Não é possível iniciar a transmissão, encerre a outra transmissão primeiro!',
+            snackbarOpen: true,
+        })
+    }
+
+    handle409Stop() {
+        const { snackbarError } = this.props.classes
+
+        this.setState({
+            snackbarClass: snackbarError,
+            snackbarMessage: 'Não é possível finalizar a transmissão!',
+            snackbarOpen: true,
+        })
     }
 
     handleStartTransmission(e) {
@@ -176,33 +228,41 @@ class Transmission extends React.Component {
         } = this.state
 
         if (busy) {
-            this.setState({ busy: false })
-
             stopExam(id)
                 .then(response => {
                     if (response.status === 200) {
+                        this.setState({ snackbarMessage: 'Transmissão gravada!', snackbarOpen: true, })
+                        appEvents.emit('TRANSMISSION_STOPPED')
                     } else if (response.status === 400) {
                     } else if (response.status === 404) {
                     } else if (response.status === 409) {
+                        this.handle409Stop()
                     }
 
                     return response
                 })
+                .then(() => this.setState({ busy: false }))
+
         } else {
             this.setState({ busy: true })
 
             startExam(id)
                 .then(response => {
                     if (response.status === 200) {
+                        appEvents.emit('TRANSMISSION_STARTED', {
+                            deviceM3U8: 'https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8',
+                            examId: id,
+                        })
                     } else if (response.status === 400) {
                     } else if (response.status === 404) {
                     } else if (response.status === 409) {
+                        this.handle409Start()
+                        this.setState({ busy: false })
                     }
 
                     return response
                 })
         }
-
     }
 
     render() {
@@ -211,22 +271,20 @@ class Transmission extends React.Component {
         } = this.props
 
         const {
-            anotherExamRunning,
+            examIdRunning,
             busy,
             devices,
+            id,
             patientEmails,
             patientName,
             patientPhones,
             patientScheduled,
-            playing,
+            snackbarClass,
+            snackbarMessage,
+            snackbarOpen,
         } = this.state
 
-        if (playing && !this.attached) {
-            hls.attachMedia(this.playerDom.current)
-            this.playerDom.current.play()
-
-            this.attached = true
-        }
+        attachMedia(this.playerDom.current)
 
         const player = () => {
             if (is.empty(devices)) {
@@ -244,8 +302,37 @@ class Transmission extends React.Component {
 
         const buttonLabel = busy ? 'Finalizar transmissão' : 'Iniciar transmissão'
 
+        const emails = is.empty(patientEmails) ? 'Não cadastrado' : patientEmails.join(', ')
+        const phones = is.empty(patientPhones) || (patientPhones.length === 1 && patientPhones[0] === '') ? 'Não cadastrado' : patientPhones.join(', ')
+
+        const isThereexamIdRunning = !is.empty(examIdRunning) && examIdRunning !== id
+
+        const disableTransmissitionButton = is.empty(devices)
+
         return (
             <div>
+                <Snackbar
+                    anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
+                    open={snackbarOpen}
+                    autoHideDuration={6000}
+                    onClose={this.handleCloseSnackbar}
+                >
+                    <SnackbarContent
+                        className={snackbarClass}
+                        message={snackbarMessage}
+                        action={[
+                            <IconButton
+                                key="close"
+                                aria-label="Close"
+                                color="inherit"
+                                onClick={this.handleCloseSnackbar}
+                            >
+                                <CloseIcon />
+                            </IconButton>,
+                        ]}
+                    />
+                </Snackbar>
+
                 <Grid container>
                     <Grid item xs={2}>
                         <Menu />
@@ -269,7 +356,7 @@ class Transmission extends React.Component {
                                     color="secondary"
                                     onClick={this.handleStartTransmission}
                                     variant="contained"
-                                    disabled={is.empty(devices) || !is.empty(anotherExamRunning)}
+                                    disabled={disableTransmissitionButton}
                                 >
                                     {buttonLabel}
                                 </Button>
@@ -278,14 +365,14 @@ class Transmission extends React.Component {
 
                         <Grid container className={classes.grid} justify="center">
                             <Grid item lg={5} md={10} sm={12}>
-                                {anotherExamRunning && (
+                                {isThereexamIdRunning && (
                                     <Paper className={classes.paperWarning}>
                                         <Typography color="error">
                                             Está sendo transmitido um exame, você deve primeiro finalizá-lo.
 
                                             <Button
                                                 component={Link}
-                                                to={`/transmission/${anotherExamRunning}`}
+                                                to={`/transmission/${examIdRunning}`}
                                                 className={classes.button}
                                                 color="primary"
                                                 onClick={e => document.location.reload()}
@@ -304,10 +391,10 @@ class Transmission extends React.Component {
                                     <Typography variant="body1" paragraph={true}>{toDate(patientScheduled)}</Typography>
 
                                     <Typography variant="body2">E-mail</Typography>
-                                    <Typography variant="body1" paragraph={true}>{patientEmails.join(', ')}</Typography>
+                                    <Typography variant="body1" paragraph={true}>{emails}</Typography>
 
                                     <Typography variant="body2">Telefone</Typography>
-                                    <Typography variant="body1" paragraph={true}>{patientPhones.join(', ')}</Typography>
+                                    <Typography variant="body1" paragraph={true}>{phones}</Typography>
                                 </Paper>
                             </Grid>
                         </Grid>
@@ -319,13 +406,19 @@ class Transmission extends React.Component {
 }
 
 Transmission.propTypes = {
+    busy: PropTypes.bool,
     classes: PropTypes.object.isRequired,
+    parentProps: PropTypes.shape({
+        examIdTransmitting: PropTypes.string.isRequired,
+        isTransmitting: PropTypes.bool.isRequired,
+    }),
     patientEmails: PropTypes.arrayOf(PropTypes.string),
     patientName: PropTypes.string,
     patientPhones: PropTypes.arrayOf(PropTypes.string),
 }
 
 Transmission.defaultProps = {
+    busy: false,
     patientEmails: [],
     patientName: 'Paciente',
     patientPhones: [],
