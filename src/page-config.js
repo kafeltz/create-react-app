@@ -86,7 +86,7 @@ class Config extends React.Component {
                             <Grid item lg={6} md={12} sm={12}>
                                 <form className={classes.form} noValidate autoComplete="off">
                                     <Paper className={classes.paper}>
-                                        <Grid container xs={12} justify="space-between" className={classNames({[classes.pageBusy]: busy })}>
+                                        <Grid container justify="space-between" className={classNames({[classes.pageBusy]: busy })}>
                                             <Grid item xs={4} className={classes.formRow}>
                                                 <div className={classes.fieldsInfo}>
                                                     <Typography color="textPrimary" variant="body1">

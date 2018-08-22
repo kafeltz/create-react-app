@@ -22,12 +22,14 @@ import green from '@material-ui/core/colors/green'
 import { withStyles } from '@material-ui/core/styles'
 
 import {
-    getDevicesInfo,
     getExamRunning,
     getExams,
     startExam,
     stopExam,
-} from './lib/api.js'
+} from './lib/api/exam.js'
+
+import { getDevicesInfo } from './lib/api/device.js'
+
 import Menu from './component-menu.js'
 import { toDate } from './lib/date.js'
 
@@ -117,13 +119,13 @@ class Transmission extends React.Component {
 
         getDevicesInfo()
             .then(response => {
-                // if (response.status === 200) {
-                if (response.status === 404) {
-                    // const devices = response.json()
-                    const devices = [{
-                        'address': 'https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8',
-                        'id': 'f0e4fd5e-c3f5-4b13-8591-4099aaecc83d',
-                    }]
+                if (response.status === 200) {
+                // if (response.status === 404) {
+                    const devices = response.json()
+                    // const devices = [{
+                    //     'address': 'https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8',
+                    //     'id': 'f0e4fd5e-c3f5-4b13-8591-4099aaecc83d',
+                    // }]
 
                     loadSource(devices[0].address)
 

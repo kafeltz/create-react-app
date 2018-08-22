@@ -43,7 +43,7 @@ import {
     disableExam,
     getExams,
     notifyExam,
-} from './lib/api.js'
+} from './lib/api/exam.js'
 
 import { toDate } from './lib/date.js'
 
@@ -66,7 +66,7 @@ const styles = theme => ({
     },
     emptyImage: {
         height: 'auto',
-        width: '50%',
+        width: '230px',
     },
     flex: {
         flexGrow: 1,
@@ -190,6 +190,7 @@ class Dashboard extends Component {
                     switch(response.status) {
                     case 200:
                     case 202:
+                    break
 
                     case 400:
                     case 404:
@@ -397,10 +398,6 @@ class Dashboard extends Component {
                                 <Typography variant="title" color="inherit" className={classes.flex}>
                                     {pageTitle()}
                                 </Typography>
-
-                                <Button variant="outlined" color="secondary" className={classes.button} onClick={this.handleSave}>
-                                    Fitrar
-                                </Button>
 
                                 {newButton}
                             </Toolbar>

@@ -1,7 +1,7 @@
 {
     "extends": "react-app",
     "rules": {
-        "indent": ["warn", 4],
+        "indent": ["warn", 4, { "SwitchCase": 1 }],
         "semi": ["warn", "never"],
         "quotes": ["warn", "single"],
         "sort-keys": ["warn", "asc"]

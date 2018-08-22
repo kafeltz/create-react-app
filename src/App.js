@@ -1,15 +1,12 @@
 import React, { Component } from 'react'
 import { BrowserRouter as Router, Route } from 'react-router-dom'
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
 
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
 import CssBaseline from '@material-ui/core/CssBaseline'
-import Snackbar from '@material-ui/core/Snackbar'
-import SnackbarContent from '@material-ui/core/SnackbarContent'
-import IconButton from '@material-ui/core/IconButton'
-import CloseIcon from '@material-ui/icons/Close'
 
 import PageConfig from './page-config.js'
 import PageDashboard from './page-dashboard.js'
+import PageDevice from './page-device.js'
 import PageHome from './page-home.js'
 import PageNewExam from './page-new-exam.js'
 import PagePlaygrounds from './page-playgrounds.js'
@@ -24,20 +21,20 @@ import {
     detachMedia,
 } from './hls-instance.js'
 
-import {
-    getExams,
-    getDevicesInfo,
-} from './lib/api.js'
+import { getDevicesInfo } from './lib/api/device.js'
+import { getTokenStatus } from './lib/api/token.js'
+import { getExams } from './lib/api/exam.js'
+
 
 import {
     API_ERROR,
     events as appEvents,
-    SNACK_ERROR,
     SNACK_SUCCESS,
 } from './events.js'
 
 import './App.css'
 import 'typeface-roboto'
+
 
 const theme = createMuiTheme({
     overrides: {
@@ -56,7 +53,6 @@ const theme = createMuiTheme({
         },
         secondary: {
             main: '#00CF74',
-            // dark: '#006fb6',
         },
     },
     typography: {
@@ -91,17 +87,29 @@ class App extends Component {
             isTransmitting: false,
             playerIsReadyToPlay: false,
             playerOpen: false,
-            tokenIsValid: false,
             snackbarOpen: false,
             snackbarMessage: '',
+            tokenIsValid: false,
+            tokenOk: null, // null, true or false
         }
 
         this.videoDom = null
         this.router = React.createRef()
 
-        this.getVideoDomElement = this.getVideoDomElement.bind(this)
-        this.handleCloseSnackbar = this.handleCloseSnackbar.bind(this)
-        this.handlePlayerClick = this.handlePlayerClick.bind(this)
+        getTokenStatus()
+            .then(response => {
+                switch(response.status) {
+                    case 200:
+                        this.setState({ tokenOk: true })
+                        break
+
+                    case 401:
+                    case 404:
+                    default:
+                        this.setState({ tokenOk: false })
+                        this.router.current.history.push('/token')
+                }
+            })
 
         appEvents.on('TRANSMISSION_STARTED', ({ examId, deviceM3U8 }) => {
             this.setState({
@@ -132,6 +140,7 @@ class App extends Component {
             this.setState({
                 snackbarMessage: 'Ocorreu um erro inesperado',
                 snackbarOpen: true,
+                snackbarType: 'error',
             })
 
             console.error('API_ERROR', context)
@@ -156,6 +165,10 @@ class App extends Component {
                     this.setState({ devices: devices })
                 }
             })
+
+        this.getVideoDomElement = this.getVideoDomElement.bind(this)
+        this.handleCloseSnackbar = this.handleCloseSnackbar.bind(this)
+        this.handlePlayerClick = this.handlePlayerClick.bind(this)
     }
 
     handleCloseSnackbar() {
@@ -226,8 +239,9 @@ class App extends Component {
 
                         <Route exact path="/" component={PageHome} />
                         <Route path="/dashboard" render={ props => <PageDashboard route={{...props}} /> } />
-                        <Route path="/new-exam" render={ props => <PageNewExam route={{...props}} /> } />
-                        <Route path="/token" component={PageToken} />
+                        <Route path="/new-exam"  render={ props => <PageNewExam route={{...props}} /> } />
+                        <Route path="/token"     render={ props => <PageToken route={{...props}} /> } />
+                        <Route path="/device"    render={ props => <PageDevice route={{...props}} /> } />
                         <Route path="/config" component={PageConfig} />
                         <Route path="/transmission/:id" render={ props => <PageTransmission route={{...props}} parentProps={ {...parentProps} } /> } />
 

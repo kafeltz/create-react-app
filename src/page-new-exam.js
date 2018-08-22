@@ -2,11 +2,12 @@ import MaskedInput from 'react-text-mask'
 import PropTypes from 'prop-types'
 import React from 'react'
 import moment from 'moment'
+import is from 'is_js'
+import classNames from 'classnames'
 
 import AppBar from '@material-ui/core/AppBar'
 import Button from '@material-ui/core/Button'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import classNames from 'classnames'
 import ClearIcon from '@material-ui/icons/Clear'
 import CloseIcon from '@material-ui/icons/Close'
 import FormControl from '@material-ui/core/FormControl'
@@ -23,18 +24,13 @@ import { withStyles } from '@material-ui/core/styles'
 
 import {
     events as appEvents,
-    SNACK_ERROR,
     SNACK_SUCCESS,
 } from './events.js'
 
 import Menu from './component-menu.js'
 
-import {
-    saveExam,
-    NEED_BE_IN_FUTURE,
-} from './lib/api.js'
-
-import is from 'is_js'
+import { saveExam } from './lib/api/exam.js'
+import { NEED_BE_IN_FUTURE } from './lib/api/consts.js'
 
 import {
     FORM_AT_LEAST_ONE_CONTACT,

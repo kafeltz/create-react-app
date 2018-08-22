@@ -1,6 +1,5 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import classnames from 'classnames'
 
 import CloseIcon from '@material-ui/icons/Close'
 import green from '@material-ui/core/colors/green'
