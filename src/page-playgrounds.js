@@ -11,10 +11,12 @@ import Button from '@material-ui/core/Button'
 import PageToken from './page-token.js'
 import PageNewExam from './page-new-exam.js'
 import PageDashboard from './page-dashboard.js'
+import PageDevice from './page-device.js'
 
 const PAGE_TOKEN = 'token'
 const PAGE_DASHBOARD = 'dashboard'
 const PAGE_NEW_EXAM = 'new-exam'
+const PAGE_DEVICE = 'device'
 
 const styles = theme => ({
     root: {
@@ -36,7 +38,7 @@ class PagePlaygrounds extends React.Component {
         super(props)
 
         this.state = {
-            page: PAGE_NEW_EXAM,
+            page: PAGE_DEVICE,
         }
 
         this.handlePageClick = this.handlePageClick.bind(this)
@@ -96,6 +98,25 @@ class PagePlaygrounds extends React.Component {
                             extraPhones={ ['(47) 12345-6789'] }
                             extraEmails={ ['extra@eventials.com'] }
                         />
+                    </React.Fragment>
+                )
+            } else if (page === PAGE_DEVICE) {
+                return (
+                    <React.Fragment>
+                        <PageDevice />
+                        <br />
+
+                        <PageDevice busy={true} />
+                        <br />
+
+                        <PageDevice devices={[{'address': 'http://0.0.0.0:8100'}]} selectedIP="http://0.0.0.0:8100" />
+                        <br />
+
+                        <PageDevice devices={[{'address': 'http://192.168.0.31:8100'}, {'address': 'http://0.0.0.0:8100'}]} selectedIP="http://192.168.0.31:8100" />
+                        <br />
+
+                        <PageDevice devices={[{'address': 'http://192.168.0.31:8100'}, {'address': 'http://0.0.0.0:8100'}]} selectedIP="127.0.0.1" busy={true} />
+                        <br />
                     </React.Fragment>
                 )
             }

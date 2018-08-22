@@ -6,11 +6,12 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 import FormControl from '@material-ui/core/FormControl'
 import FormHelperText from '@material-ui/core/FormHelperText'
 import Grid from '@material-ui/core/Grid'
-import Input from '@material-ui/core/Input'
 import InputLabel from '@material-ui/core/InputLabel'
+import MenuItem from '@material-ui/core/MenuItem'
 import Paper from '@material-ui/core/Paper'
-import red from '@material-ui/core/colors/red'
+import Select from '@material-ui/core/Select'
 import Typography from '@material-ui/core/Typography'
+import red from '@material-ui/core/colors/red'
 import { withStyles } from '@material-ui/core/styles'
 
 import is from 'is_js'
@@ -20,9 +21,15 @@ import {
     API_ERROR,
 } from './events.js'
 
-import { setToken } from './lib/api/token.js'
+import {
+    getDevices,
+    setDevice,
+} from './lib/api/device.js'
 
 const styles = theme => ({
+    button: {
+        marginTop: theme.spacing.unit * 3,
+    },
     buttonProgress: {
         color: red[500],
         left: '50%',
@@ -37,13 +44,11 @@ const styles = theme => ({
     },
     paper: {
         padding: theme.spacing.unit * 4,
+        position: 'relative',
         textAlign: 'center',
     },
     root: {
         marginTop: theme.spacing.unit * 4,
-    },
-    title: {
-        marginBottom: 10,
     },
     wrapper: {
         marginBottom: theme.spacing.unit * 4,
@@ -51,91 +56,118 @@ const styles = theme => ({
     },
 })
 
-class Token extends React.Component {
+class Device extends React.Component {
     constructor(props) {
         super(props)
 
         this.state = {
             busy: props.busy,
+            devices: props.devices,
             error: props.error,
-            token: props.token,
+            selectedIP: props.selectedIP,
         }
 
+        getDevices().then(data => this.setState({ devices: data }))
+
         this.handleButtonClick = this.handleButtonClick.bind(this)
-        this.handleOnTokenChange = this.handleOnTokenChange.bind(this)
+        this.handleIPChange = this.handleIPChange.bind(this)
     }
 
-    handleOnTokenChange(e) {
-        this.setState({ token: e.currentTarget.value })
+    handleIPChange(e) {
+        e.stopPropagation()
+
+        this.setState({ selectedIP: e.target.value })
     }
 
     handleButtonClick(e) {
-        const { token } = this.state
+        e.stopPropagation()
+
+        const { selectedIP } = this.state
         const { route } = this.props
 
-        this.setState({ busy: false })
+        this.setState({ busy: true })
 
-        setToken(token)
-            .then(response => {
-                switch(response.status) {
+        setDevice(selectedIP)
+            .then(({ status }) => {
+                switch(status) {
                     case 200:
-                        this.setState({ busy: true })
                         route.history.push('/dashboard')
-                        break
-                    case 401:
-                        this.setState({ error: 'Token inválido!' })
                         break
                     default:
                         appEvents.emit(API_ERROR, {
-                            method: 'setToken',
-                            params: [{ token: token }],
-                            status: response.status,
+                            method: 'setDevice',
+                            params: [{ selectedIP: selectedIP }],
+                            status: status,
                         })
                 }
             })
+            .then(() => this.setState({ busy: false }))
     }
 
     render() {
         const { classes } = this.props
+
         const {
-            error,
-            token,
             busy,
+            error,
+            devices,
+            selectedIP,
         } = this.state
 
-        const hasError = error.length > 0
-        const helper = hasError ? error : 'Informe a chave de acesso para o uso do Vlab Exames'
-        const buttonDisabled = busy || is.empty(token.trim())
+        const hasError = !is.empty(error)
+
+        const items = devices.map(x => <MenuItem key={`id_${x.address}`} value={x.address}>{x.address}</MenuItem>)
+
+        const domId = 'ip'
+
+        // o campo select além de ficar desativado quando o formulário está ocupado, também
+        // fica desativado quando só contem 1 único item na lista de dispositivos
+        const disabledSelect = items.length === 1 || busy
 
         return (
             <Grid container justify="center" className={classes.root}>
                 <Grid item>
                     <Paper className={classes.paper}>
-                        <Typography className={classes.title} variant="headline" component="h3">
-                            Bem-vindo ao Vlab Exames
-                        </Typography>
+                        <Typography variant="headline" gutterBottom={true}>Dispositivo de captura de vídeo</Typography>
 
-                        <FormControl error={hasError} disabled={busy}>
-                            <InputLabel disabled={busy}>Token de Acesso</InputLabel>
-                            <Input value={token} onChange={this.handleOnTokenChange} disabled={busy} />
-                            <FormHelperText disabled={busy}>{helper}</FormHelperText>
+                        {!is.empty(items) && (
+                            <React.Fragment>
+                                <FormControl fullWidth={true} error={hasError} disabled={busy}>
+                                    <InputLabel htmlFor={domId}>IP</InputLabel>
 
-                            <div className={classes.wrapper}>
+                                    <Select
+                                        value={selectedIP}
+                                        onChange={this.handleIPChange}
+                                        inputProps={{ id: domId }}
+                                        disabled={disabledSelect}
+                                    >
+                                        {items}
+                                    </Select>
+
+                                    <FormHelperText>{error}</FormHelperText>
+                                </FormControl>
+
                                 <Button
-                                    variant="contained"
+                                    className={classes.button}
                                     color="secondary"
-                                    disabled={buttonDisabled}
+                                    variant="contained"
+                                    disabled={busy}
                                     onClick={this.handleButtonClick}
                                 >
-                                    Entrar
+                                    Salvar
                                 </Button>
-                                {busy && <CircularProgress size={24} className={classes.buttonProgress} />}
-                            </div>
+                            </React.Fragment>
+                        )}
 
-                            <Typography variant="caption">
-                                Saiba como encontrar o seu token de acesso
-                            </Typography>
-                        </FormControl>
+                        {is.empty(items) && (
+                            <React.Fragment>
+                                <Typography color="error">Disposivo não encontrado</Typography>
+
+                                <Button variant="contained" color="secondary" className={classes.button} disabled={busy}>Tentar novamente</Button>
+                            </React.Fragment>
+                        )}
+
+                        {busy && <CircularProgress size={24} className={classes.buttonProgress} />}
                     </Paper>
                 </Grid>
             </Grid>
@@ -143,17 +175,21 @@ class Token extends React.Component {
     }
 }
 
-Token.propTypes = {
-    classes: PropTypes.object.isRequired,
-    error: PropTypes.string,
-    token: PropTypes.string,
+Device.propTypes = {
     busy: PropTypes.bool,
+    classes: PropTypes.object.isRequired,
+    devices: PropTypes.arrayOf(PropTypes.shape({
+        string: PropTypes.string.isRequired,
+    })),
+    error: PropTypes.string,
+    selectedIP: PropTypes.string,
 }
 
-Token.defaultProps = {
-    error: '',
-    token: '',
+Device.defaultProps = {
     busy: false,
+    devices: [],
+    error: '',
+    selectedIP: '',
 }
 
-export default withStyles(styles)(Token)
+export default withStyles(styles)(Device)

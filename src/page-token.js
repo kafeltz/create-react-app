@@ -21,6 +21,7 @@ import {
 } from './events.js'
 
 import { setToken } from './lib/api/token.js'
+import { getDeviceStatus } from './lib/api/device.js'
 
 const styles = theme => ({
     buttonProgress: {
@@ -79,8 +80,25 @@ class Token extends React.Component {
             .then(response => {
                 switch(response.status) {
                     case 200:
-                        this.setState({ busy: true })
-                        route.history.push('/dashboard')
+                        getDeviceStatus()
+                            .then(({ status })  => {
+                                switch(status) {
+                                    case 200:
+                                        route.history.push('/dashboard')
+                                    break
+
+                                    case 404:
+                                        route.history.push('/device')
+                                    break
+
+                                    default:
+                                        appEvents.emit(API_ERROR, {
+                                            method: 'getDeviceStatus',
+                                            params: [],
+                                            status: status,
+                                        })
+                                }
+                            })
                         break
                     case 401:
                         this.setState({ error: 'Token inválido!' })
