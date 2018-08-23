@@ -103,19 +103,19 @@ class PagePlaygrounds extends React.Component {
             } else if (page === PAGE_DEVICE) {
                 return (
                     <React.Fragment>
-                        <PageDevice />
+                        <PageDevice fetchOnInit={false} />
                         <br />
 
-                        <PageDevice busy={true} />
+                        <PageDevice busy={true} fetchOnInit={false} />
                         <br />
 
-                        <PageDevice devices={[{'address': 'http://0.0.0.0:8100'}]} selectedIP="http://0.0.0.0:8100" />
+                        <PageDevice devices={[{'address': 'http://0.0.0.0:8100'}]} selectedIP="http://0.0.0.0:8100" fetchOnInit={false} />
                         <br />
 
-                        <PageDevice devices={[{'address': 'http://192.168.0.31:8100'}, {'address': 'http://0.0.0.0:8100'}]} selectedIP="http://192.168.0.31:8100" />
+                        <PageDevice devices={[{'address': 'http://192.168.0.31:8100'}, {'address': 'http://0.0.0.0:8100'}]} selectedIP="http://192.168.0.31:8100" fetchOnInit={false} />
                         <br />
 
-                        <PageDevice devices={[{'address': 'http://192.168.0.31:8100'}, {'address': 'http://0.0.0.0:8100'}]} selectedIP="127.0.0.1" busy={true} />
+                        <PageDevice devices={[{'address': 'http://192.168.0.31:8100'}, {'address': 'http://0.0.0.0:8100'}]} selectedIP="http://0.0.0.0:8100" busy={true} fetchOnInit={false} />
                         <br />
                     </React.Fragment>
                 )

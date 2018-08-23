@@ -26,6 +26,8 @@ import {
     setDevice,
 } from './lib/api/device.js'
 
+import { FORM_NOT_NULL } from './lib/consts.js'
+
 const styles = theme => ({
     button: {
         marginTop: theme.spacing.unit * 3,
@@ -67,7 +69,9 @@ class Device extends React.Component {
             selectedIP: props.selectedIP,
         }
 
-        getDevices().then(data => this.setState({ devices: data }))
+        if (props.fetchOnInit) {
+            getDevices().then(data => this.setState({ devices: data }))
+        }
 
         this.handleButtonClick = this.handleButtonClick.bind(this)
         this.handleIPChange = this.handleIPChange.bind(this)
@@ -84,6 +88,14 @@ class Device extends React.Component {
 
         const { selectedIP } = this.state
         const { route } = this.props
+
+        if (is.empty(selectedIP)) {
+            this.setState({ error: FORM_NOT_NULL })
+
+            return
+        } else {
+            this.setState({ error: '' })
+        }
 
         this.setState({ busy: true })
 
@@ -179,9 +191,10 @@ Device.propTypes = {
     busy: PropTypes.bool,
     classes: PropTypes.object.isRequired,
     devices: PropTypes.arrayOf(PropTypes.shape({
-        string: PropTypes.string.isRequired,
+        address: PropTypes.string.isRequired,
     })),
     error: PropTypes.string,
+    fetchOnInit: PropTypes.bool,
     selectedIP: PropTypes.string,
 }
 
@@ -189,6 +202,7 @@ Device.defaultProps = {
     busy: false,
     devices: [],
     error: '',
+    fetchOnInit: true,
     selectedIP: '',
 }
 

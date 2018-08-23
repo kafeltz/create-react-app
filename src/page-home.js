@@ -1,25 +1,6 @@
 import React from 'react'
 import logo from './assets/logo.svg'
 
-const styles = theme => ({
-    root: {
-        flexGrow: 1,
-    },
-    paper: {
-        padding: theme.spacing.unit * 4,
-        textAlign: 'center',
-        color: theme.palette.text.secondary,
-    },
-    textField: {
-        marginLeft: theme.spacing.unit,
-        marginRight: theme.spacing.unit,
-        width: 200,
-    },
-    button: {
-        margin: theme.spacing.unit,
-    },
-})
-
 const PageHome = () => {
     return (
         <div className="App">

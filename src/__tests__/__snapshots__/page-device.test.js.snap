@@ -1,0 +1,331 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`render page-device correctly base on params renders scenario 1 1`] = `
+<div
+  className="MuiGrid-container-7 MuiGrid-justify-xs-center-24 Device-root-5"
+>
+  <div
+    className="MuiGrid-item-8"
+  >
+    <div
+      className="MuiPaper-root-104 MuiPaper-elevation2-108 MuiPaper-rounded-105 Device-paper-4"
+    >
+      <h1
+        className="MuiTypography-root-131 MuiTypography-headline-136 MuiTypography-gutterBottom-148"
+      >
+        Dispositivo de captura de vídeo
+      </h1>
+      <p
+        className="MuiTypography-root-131 MuiTypography-body1-140 MuiTypography-colorError-155"
+      >
+        Disposivo não encontrado
+      </p>
+      <button
+        className="MuiButtonBase-root-182 MuiButton-root-156 MuiButton-contained-167 MuiButton-containedSecondary-169 MuiButton-raised-170 MuiButton-raisedSecondary-172 Device-button-1"
+        disabled={false}
+        onBlur={[Function]}
+        onFocus={[Function]}
+        onKeyDown={[Function]}
+        onKeyUp={[Function]}
+        onMouseDown={[Function]}
+        onMouseLeave={[Function]}
+        onMouseUp={[Function]}
+        onTouchEnd={[Function]}
+        onTouchMove={[Function]}
+        onTouchStart={[Function]}
+        tabIndex="0"
+        type="button"
+      >
+        <span
+          className="MuiButton-label-157"
+        >
+          Tentar novamente
+        </span>
+        <span
+          className="MuiTouchRipple-root-185"
+        />
+      </button>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`render page-device correctly base on params renders scenario 2 1`] = `
+<div
+  className="MuiGrid-container-7 MuiGrid-justify-xs-center-24 Device-root-5"
+>
+  <div
+    className="MuiGrid-item-8"
+  >
+    <div
+      className="MuiPaper-root-104 MuiPaper-elevation2-108 MuiPaper-rounded-105 Device-paper-4"
+    >
+      <h1
+        className="MuiTypography-root-131 MuiTypography-headline-136 MuiTypography-gutterBottom-148"
+      >
+        Dispositivo de captura de vídeo
+      </h1>
+      <p
+        className="MuiTypography-root-131 MuiTypography-body1-140 MuiTypography-colorError-155"
+      >
+        Disposivo não encontrado
+      </p>
+      <button
+        className="MuiButtonBase-root-182 MuiButton-root-156 MuiButton-contained-167 MuiButton-containedSecondary-169 MuiButton-raised-170 MuiButton-raisedSecondary-172 Device-button-1"
+        disabled={false}
+        onBlur={[Function]}
+        onFocus={[Function]}
+        onKeyDown={[Function]}
+        onKeyUp={[Function]}
+        onMouseDown={[Function]}
+        onMouseLeave={[Function]}
+        onMouseUp={[Function]}
+        onTouchEnd={[Function]}
+        onTouchMove={[Function]}
+        onTouchStart={[Function]}
+        tabIndex="0"
+        type="button"
+      >
+        <span
+          className="MuiButton-label-157"
+        >
+          Tentar novamente
+        </span>
+        <span
+          className="MuiTouchRipple-root-185"
+        />
+      </button>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`render page-device correctly base on params renders scenario 3 1`] = `
+<div
+  className="MuiGrid-container-7 MuiGrid-justify-xs-center-24 Device-root-5"
+>
+  <div
+    className="MuiGrid-item-8"
+  >
+    <div
+      className="MuiPaper-root-104 MuiPaper-elevation2-108 MuiPaper-rounded-105 Device-paper-4"
+    >
+      <h1
+        className="MuiTypography-root-131 MuiTypography-headline-136 MuiTypography-gutterBottom-148"
+      >
+        Dispositivo de captura de vídeo
+      </h1>
+      <div
+        className="MuiFormControl-root-192 MuiFormControl-fullWidth-195"
+      >
+        <label
+          className="MuiFormLabel-root-201 MuiFormLabel-filled-205 MuiInputLabel-root-196 MuiInputLabel-formControl-197 MuiInputLabel-animated-200 MuiInputLabel-shrink-199"
+          data-shrink={true}
+          htmlFor="ip"
+        >
+          IP
+        </label>
+        <div
+          className="MuiInput-root-213 MuiInput-disabled-216 MuiInput-formControl-214 MuiInput-underline-217"
+        >
+          <div
+            className="MuiSelect-root-208"
+          >
+            <div
+              aria-haspopup="true"
+              aria-owns={null}
+              aria-pressed="false"
+              className="MuiSelect-select-209 MuiSelect-selectMenu-210 MuiSelect-disabled-211 MuiInput-input-221 MuiInput-disabled-216"
+              onBlur={[Function]}
+              onClick={null}
+              onFocus={[Function]}
+              onKeyDown={[Function]}
+              role="button"
+              tabIndex={null}
+            >
+              http://0.0.0.0:8100
+            </div>
+            <input
+              autoComplete={undefined}
+              autoFocus={undefined}
+              defaultValue={undefined}
+              id="ip"
+              name={undefined}
+              onKeyDown={undefined}
+              onKeyUp={undefined}
+              placeholder={undefined}
+              rows={undefined}
+              type="hidden"
+              value="http://0.0.0.0:8100"
+            />
+            <svg
+              aria-hidden="true"
+              className="MuiSvgIcon-root-226 MuiSelect-icon-212"
+              color={undefined}
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M7 10l5 5 5-5z"
+              />
+            </svg>
+          </div>
+        </div>
+        <p
+          className="MuiFormHelperText-root-237 MuiFormHelperText-filled-242"
+        >
+          
+        </p>
+      </div>
+      <button
+        className="MuiButtonBase-root-182 MuiButton-root-156 MuiButton-contained-167 MuiButton-containedSecondary-169 MuiButton-raised-170 MuiButton-raisedSecondary-172 Device-button-1"
+        disabled={false}
+        onBlur={[Function]}
+        onClick={[Function]}
+        onFocus={[Function]}
+        onKeyDown={[Function]}
+        onKeyUp={[Function]}
+        onMouseDown={[Function]}
+        onMouseLeave={[Function]}
+        onMouseUp={[Function]}
+        onTouchEnd={[Function]}
+        onTouchMove={[Function]}
+        onTouchStart={[Function]}
+        tabIndex="0"
+        type="button"
+      >
+        <span
+          className="MuiButton-label-157"
+        >
+          Salvar
+        </span>
+        <span
+          className="MuiTouchRipple-root-185"
+        />
+      </button>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`render page-device correctly base on params renders scenario 4 1`] = `
+<div
+  className="MuiGrid-container-7 MuiGrid-justify-xs-center-24 Device-root-5"
+>
+  <div
+    className="MuiGrid-item-8"
+  >
+    <div
+      className="MuiPaper-root-104 MuiPaper-elevation2-108 MuiPaper-rounded-105 Device-paper-4"
+    >
+      <h1
+        className="MuiTypography-root-131 MuiTypography-headline-136 MuiTypography-gutterBottom-148"
+      >
+        Dispositivo de captura de vídeo
+      </h1>
+      <p
+        className="MuiTypography-root-131 MuiTypography-body1-140 MuiTypography-colorError-155"
+      >
+        Disposivo não encontrado
+      </p>
+      <button
+        className="MuiButtonBase-root-182 MuiButton-root-156 MuiButton-contained-167 MuiButton-containedSecondary-169 MuiButton-raised-170 MuiButton-raisedSecondary-172 Device-button-1"
+        disabled={false}
+        onBlur={[Function]}
+        onFocus={[Function]}
+        onKeyDown={[Function]}
+        onKeyUp={[Function]}
+        onMouseDown={[Function]}
+        onMouseLeave={[Function]}
+        onMouseUp={[Function]}
+        onTouchEnd={[Function]}
+        onTouchMove={[Function]}
+        onTouchStart={[Function]}
+        tabIndex="0"
+        type="button"
+      >
+        <span
+          className="MuiButton-label-157"
+        >
+          Tentar novamente
+        </span>
+        <span
+          className="MuiTouchRipple-root-185"
+        />
+      </button>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`render page-device correctly base on params renders scenario 5 1`] = `
+<div
+  className="MuiGrid-container-7 MuiGrid-justify-xs-center-24 Device-root-5"
+>
+  <div
+    className="MuiGrid-item-8"
+  >
+    <div
+      className="MuiPaper-root-104 MuiPaper-elevation2-108 MuiPaper-rounded-105 Device-paper-4"
+    >
+      <h1
+        className="MuiTypography-root-131 MuiTypography-headline-136 MuiTypography-gutterBottom-148"
+      >
+        Dispositivo de captura de vídeo
+      </h1>
+      <p
+        className="MuiTypography-root-131 MuiTypography-body1-140 MuiTypography-colorError-155"
+      >
+        Disposivo não encontrado
+      </p>
+      <button
+        className="MuiButtonBase-root-182 MuiButtonBase-disabled-183 MuiButton-root-156 MuiButton-contained-167 MuiButton-containedSecondary-169 MuiButton-raised-170 MuiButton-raisedSecondary-172 MuiButton-disabled-176 Device-button-1"
+        disabled={true}
+        onBlur={[Function]}
+        onFocus={[Function]}
+        onKeyDown={[Function]}
+        onKeyUp={[Function]}
+        onMouseDown={[Function]}
+        onMouseLeave={[Function]}
+        onMouseUp={[Function]}
+        onTouchEnd={[Function]}
+        onTouchMove={[Function]}
+        onTouchStart={[Function]}
+        tabIndex="-1"
+        type="button"
+      >
+        <span
+          className="MuiButton-label-157"
+        >
+          Tentar novamente
+        </span>
+      </button>
+      <div
+        className="MuiCircularProgress-root-244 MuiCircularProgress-colorPrimary-247 MuiCircularProgress-indeterminate-246 Device-buttonProgress-2"
+        role="progressbar"
+        style={
+          Object {
+            "height": 24,
+            "width": 24,
+          }
+        }
+      >
+        <svg
+          className="MuiCircularProgress-svg-249"
+          viewBox="22 22 44 44"
+        >
+          <circle
+            className="MuiCircularProgress-circle-250 MuiCircularProgress-circleIndeterminate-252"
+            cx={44}
+            cy={44}
+            fill="none"
+            r={20.2}
+            strokeWidth={3.6}
+            style={Object {}}
+          />
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+`;

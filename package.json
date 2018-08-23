@@ -25,6 +25,7 @@
     "lint": "./node_modules/eslint/bin/eslint.js src/"
   },
   "devDependencies": {
-    "eslint-config-react-app": "^2.1.0"
+    "eslint-config-react-app": "^2.1.0",
+    "react-test-renderer": "^16.4.2"
   }
 }
