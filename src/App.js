@@ -46,6 +46,13 @@ const theme = createMuiTheme({
                 color: '#006fb6',
             },
         },
+        MuiAppBar: {
+            colorDefault: {
+                backgroundColor: 'white',
+                borderBottom: '1px solid #e0e0e0',
+                boxShadow: 'unset',
+            }
+        },
     },
     palette: {
         primary: {

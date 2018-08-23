@@ -1,16 +1,17 @@
 import React, { Component } from 'react'
+import { Link } from 'react-router-dom'
+import is from 'is_js'
+
 import AppBar from '@material-ui/core/AppBar'
 import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
+import Input from '@material-ui/core/Input'
+import InputAdornment from '@material-ui/core/InputAdornment'
 import Paper from '@material-ui/core/Paper'
 import PropTypes from 'prop-types'
 import Toolbar from '@material-ui/core/Toolbar'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
-
-import { Link } from 'react-router-dom'
-
-import is from 'is_js'
 
 import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
@@ -25,9 +26,11 @@ import TableHead from '@material-ui/core/TableHead'
 import TablePagination from '@material-ui/core/TablePagination'
 import TableRow from '@material-ui/core/TableRow'
 
-import IconButton from '@material-ui/core/IconButton'
-import ShareIcon from '@material-ui/icons/Share'
+import CloseIcon from '@material-ui/icons/Close'
 import DeleteIcon from '@material-ui/icons/Delete'
+import IconButton from '@material-ui/core/IconButton'
+import SearchIcon from '@material-ui/icons/Search'
+import ShareIcon from '@material-ui/icons/Share'
 import VideocamIcon from '@material-ui/icons/Videocam'
 
 import emptyImage from './assets/doctor.svg'
@@ -55,10 +58,13 @@ const PAGE_EXAMS = 'PAGE_EXAMS'
 const PAGE_RECORDED_EXAMS = 'PAGE_RECORDED_EXAMS'
 
 const styles = theme => ({
-    appbar: {
-        background: 'white',
-        borderBottom: '1px solid #e0e0e0',
-        boxShadow: 'unset',
+    appbarSearch: {
+        marginRight: theme.spacing.unit,
+        padding: '2px',
+        paddingLeft: '8px',
+        paddingRight: '8px',
+        background: theme.palette.grey[100],
+        borderRadius: '2px',
     },
     button: {
         marginLeft: theme.spacing.unit,
@@ -105,6 +111,13 @@ const styles = theme => ({
         justifyContent: 'center',
         padding: theme.spacing.unit * 3,
     },
+    searchIcon: {
+        color: '#757575',
+    },
+    searchIconEndAdornsement: {
+        color: '#757575',
+        cursor: 'pointer',
+    },
     paper: {
         display: 'flex',
         flexDirection: 'column',
@@ -129,6 +142,8 @@ class Dashboard extends Component {
             dialogConfirmResendOpen: false,
             page: 0,
             rowsPerPage: 10,
+            search: '', // string que será usada pra filtrar os dados
+            filter: false, // indica se é pra filtrar ou não os dados conforme a string no input (normalmente quando apertar a tecla enter)
         }
 
         const exams = getExams()
@@ -142,6 +157,8 @@ class Dashboard extends Component {
         this.handleCloseConfirmResend = this.handleCloseConfirmResend.bind(this)
         this.handleOpenConfirmDelete = this.handleOpenConfirmDelete.bind(this)
         this.handleOpenConfirmResend = this.handleOpenConfirmResend.bind(this)
+        this.handleSearchClear = this.handleSearchClear.bind(this)
+        this.handleSearchOnChange = this.handleSearchOnChange.bind(this)
         this.handleTransmission = this.handleTransmission.bind(this)
     }
 
@@ -175,7 +192,7 @@ class Dashboard extends Component {
 
         this.setState({
             chosenId: '',
-            dialogConfirmResendOpen: false,
+            dialogConfirmDeleteOpen: false,
         })
     }
 
@@ -235,6 +252,20 @@ class Dashboard extends Component {
         this.route.history.push(`/transmission/${id}`)
     }
 
+    handleSearchClear(e) {
+        e.stopPropagation()
+
+        this.setState({ search: '' })
+    }
+
+    handleSearchOnChange(e) {
+        const value = e.currentTarget.value.trim().toLowerCase()
+
+        e.stopPropagation()
+
+        this.setState({ search: value })
+    }
+
     currentPage() {
         const { data } = this.state
 
@@ -256,6 +287,7 @@ class Dashboard extends Component {
             dialogConfirmResendOpen,
             page,
             rowsPerPage,
+            search,
         } = this.state
 
         const newButton = (
@@ -280,15 +312,19 @@ class Dashboard extends Component {
             )
         }
 
-        const examPage = ({ filter }) => {
+        const examPage = (filterRecorded) => {
             let rows = []
             rows = data.filter(x => {
-                if (filter === FILTER_RECORDED) {
+                if (filterRecorded === FILTER_RECORDED) {
                     return x.recorded
                 } else {
                     return !x.recorded
                 }
             })
+
+            if (!is.empty(search)) {
+                rows = rows.filter(x => x.patient.toLowerCase().includes(search))
+            }
 
             rows = rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(x => {
                 return (
@@ -373,7 +409,7 @@ class Dashboard extends Component {
             if (this.currentPage() === PAGE_NO_EXAMS) {
                 return noExamPage()
             } else {
-                return examPage({ filter: filter })
+                return examPage(filter)
             }
         }
 
@@ -393,11 +429,25 @@ class Dashboard extends Component {
                     </Grid>
 
                     <Grid item xs={10}>
-                        <AppBar position="static" className={classes.appbar}>
+                        <AppBar position="static" color="default">
                             <Toolbar>
                                 <Typography variant="title" color="inherit" className={classes.flex}>
                                     {pageTitle()}
                                 </Typography>
+
+                                <Input
+                                    className={classes.appbarSearch}
+                                    onChange={this.handleSearchOnChange}
+                                    disableUnderline={true}
+                                    value={search}
+                                    startAdornment={
+                                        <InputAdornment position="start"><SearchIcon className={classes.searchIcon} /></InputAdornment>
+                                    }
+
+                                    endAdornment={
+                                        <InputAdornment position="end" onClick={this.handleSearchClear}><CloseIcon className={classes.searchIconEndAdornsement} /></InputAdornment>
+                                    }
+                                />
 
                                 {newButton}
                             </Toolbar>

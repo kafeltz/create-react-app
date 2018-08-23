@@ -42,11 +42,6 @@ import {
 
 const styles = theme => {
     return {
-        appbar: {
-            background: 'white',
-            borderBottom: '1px solid #e0e0e0',
-            boxShadow: 'unset',
-        },
         button: {
             marginLeft: theme.spacing.unit,
             marginRight: theme.spacing.unit,
@@ -612,7 +607,7 @@ class NewExam extends React.Component {
                     </Grid>
 
                     <Grid item xs={10}>
-                        <AppBar position="static" className={classes.appbar}>
+                        <AppBar position="static" color="default">
                             <Toolbar>
                                 <Typography variant="title" color="inherit" className={classes.flex}>
                                     Novo exame

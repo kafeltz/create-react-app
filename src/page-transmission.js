@@ -45,11 +45,6 @@ import {
 } from './hls-instance.js'
 
 const styles = theme => ({
-    appbar: {
-        background: 'white',
-        borderBottom: '1px solid #e0e0e0',
-        boxShadow: 'unset',
-    },
     button: {
         marginLeft: theme.spacing.unit,
         marginRight: theme.spacing.unit,
@@ -343,7 +338,7 @@ class Transmission extends React.Component {
                     </Grid>
 
                     <Grid item xs={10}>
-                        <AppBar position="static" className={classes.appbar}>
+                        <AppBar position="static" color="default">
                             <Toolbar>
                                 <div className={classes.flex}>
                                     <Typography variant="title">

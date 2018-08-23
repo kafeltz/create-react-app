@@ -1,26 +1,24 @@
 import React from 'react'
+import classNames from 'classnames'
 
+import AppBar from '@material-ui/core/AppBar'
+import Button from '@material-ui/core/Button'
+import FormControl from '@material-ui/core/FormControl'
+import FormHelperText from '@material-ui/core/FormHelperText'
+import Grid from '@material-ui/core/Grid'
+import Input from '@material-ui/core/Input'
 import Paper from '@material-ui/core/Paper'
+import PropTypes from 'prop-types'
+import Toolbar from '@material-ui/core/Toolbar'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
-import PropTypes from 'prop-types'
-import Grid from '@material-ui/core/Grid'
-import Button from '@material-ui/core/Button'
-import Input from '@material-ui/core/Input'
-import FormHelperText from '@material-ui/core/FormHelperText'
-import FormControl from '@material-ui/core/FormControl'
-import Toolbar from '@material-ui/core/Toolbar'
-import AppBar from '@material-ui/core/AppBar'
-import classNames from 'classnames'
+
+import { getTokenStatus } from './lib/api/token.js'
+
 
 import Menu from './component-menu.js'
 
 const styles = theme => ({
-    appbar: {
-        background: 'white',
-        boxShadow: 'unset',
-        borderBottom: '1px solid #e0e0e0',
-    },
     button: {
         marginLeft: theme.spacing.unit,
         marginRight: theme.spacing.unit,
@@ -34,10 +32,6 @@ const styles = theme => ({
     paper: {
         padding: theme.spacing.unit * 3,
     },
-    pageBusy: {
-        opacity: 0.3,
-        pointerEvents: 'none',
-    },
 })
 
 class Config extends React.Component {
@@ -45,16 +39,16 @@ class Config extends React.Component {
         super(props)
 
         this.state = {
-            clientNameError: props.clientNameError,
-            busy: props.busy,
+            token: '',
         }
+
+        getTokenStatus().then(response => response.json()).then(json => this.setState({ token: json.token }))
     }
 
     render() {
         const { classes } = this.props
         const {
-            clientNameError,
-            busy
+            token,
         } = this.state
 
         return (
@@ -65,7 +59,7 @@ class Config extends React.Component {
                     </Grid>
 
                     <Grid item xs={10}>
-                        <AppBar position="static" className={classes.appbar}>
+                        <AppBar position="static" color="default">
                             <Toolbar>
                                 <Typography variant="title" color="inherit" className={classes.flex}>
                                     Configurações
@@ -79,30 +73,25 @@ class Config extends React.Component {
 
                         <Grid container className={classes.grid} justify="center">
                             <Grid item lg={6} md={12} sm={12}>
-                                <form className={classes.form} noValidate autoComplete="off">
-                                    <Paper className={classes.paper}>
-                                        <Grid container justify="space-between" className={classNames({[classes.pageBusy]: busy })}>
-                                            <Grid item xs={4} className={classes.formRow}>
-                                                <div className={classes.fieldsInfo}>
-                                                    <Typography color="textPrimary" variant="body1">
-                                                        Token de acesso
-                                                    </Typography>
+                                <Paper className={classes.paper}>
+                                    <Grid container justify="space-between">
+                                        <Grid item xs={4} className={classes.formRow}>
+                                            <div className={classes.fieldsInfo}>
+                                                <Typography color="textPrimary" variant="body1">
+                                                    Token de acesso
+                                                </Typography>
 
-                                                    <Typography color="textSecondary"  variant="caption">
-                                                        Informe a sua chave de acesso para o uso do Vlab Exames
-                                                    </Typography>
-                                                </div>
-                                            </Grid>
-
-                                            <Grid item xs={7} className={classes.formRow}>
-                                                <FormControl fullWidth error={clientNameError.length !== 0}>
-                                                    <Input fullWidth  onChange={this.handleClientChanged} />
-                                                    <FormHelperText error={clientNameError.length !== 0}>{clientNameError}</FormHelperText>
-                                                </FormControl>
-                                            </Grid>
+                                                <Typography color="textSecondary" variant="caption">
+                                                    Informe a sua chave de acesso para o uso do Vlab Exames
+                                                </Typography>
+                                            </div>
                                         </Grid>
-                                    </Paper>
-                                </form>
+
+                                        <Grid item xs={7} className={classes.formRow}>
+                                            <Input fullWidth readOnly={true} value={token} />
+                                        </Grid>
+                                    </Grid>
+                                </Paper>
                             </Grid>
                         </Grid>
                     </Grid>
@@ -114,12 +103,10 @@ class Config extends React.Component {
 
 Config.propTypes = {
     classes: PropTypes.object.isRequired,
-    busy: PropTypes.bool,
     clientNameError: PropTypes.string,
 }
 
 Config.defaultProps = {
-    busy: false,
     clientNameError: '',
 }
 
