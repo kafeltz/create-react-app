@@ -123,7 +123,7 @@ exports[`render page-device correctly base on params renders scenario 3 1`] = `
           data-shrink={true}
           htmlFor="ip"
         >
-          IP
+          IP do dispositivo
         </label>
         <div
           className="MuiInput-root-213 MuiInput-disabled-216 MuiInput-formControl-214 MuiInput-underline-217"

@@ -145,7 +145,7 @@ class Device extends React.Component {
                         {!is.empty(items) && (
                             <React.Fragment>
                                 <FormControl fullWidth={true} error={hasError} disabled={busy}>
-                                    <InputLabel htmlFor={domId}>IP</InputLabel>
+                                    <InputLabel htmlFor={domId}>IP do dispositivo</InputLabel>
 
                                     <Select
                                         value={selectedIP}
