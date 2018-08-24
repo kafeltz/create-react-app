@@ -99,15 +99,6 @@ function getExamRunning() {
     }
 
     return fetch(url, params)
-        .then(response => {
-            if (response.status === 200) {
-                return response.json()
-            } else if (response.status === 404) {
-                return { id: '' }
-            } else {
-                throw new Error(`HTTP STATUS NOT EXPECTED: ${response.status}`)
-            }
-        })
 }
 
 function notifyExam(examId) {

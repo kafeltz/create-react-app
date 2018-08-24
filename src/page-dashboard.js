@@ -139,9 +139,9 @@ class Dashboard extends React.Component {
         this.state = {
             chosenId: '', // qual id do exame que foi selecionado na hora de clicar em algum botão de ação que abrirá o dialog (como o excluir)
             data: [], // lista de exames
-            noData: false, // usado pra saber que não existem dados, veificar se `data` é length === 0 é ruim porque os dados podem não ter vindo ainda, ou o server tá fora, e daí exibe a tela errada
             dialogConfirmDeleteOpen: false,
             dialogConfirmResendOpen: false,
+            fetched: false,
             filter: false, // indica se é pra filtrar ou não os dados conforme a string no input (normalmente quando apertar a tecla enter)
             page: 0,
             rowsPerPage: 10,
@@ -149,12 +149,13 @@ class Dashboard extends React.Component {
         }
 
         getExams()
-            .then(data => this.setState({ data: data }))
+            .then(data => this.setState({ data: data, fetched: true }))
             .catch(e => appEvents.emit(API_EXCEPTION, e))
 
         appEvents.emit('CAN_RENDER_FLOAT_PLAYER', true)
 
         this.handleChangePage = this.handleChangePage.bind(this)
+        this.handleChangeRowsPerPage = this.handleChangeRowsPerPage.bind(this)
         this.handleCloseConfirmDelete = this.handleCloseConfirmDelete.bind(this)
         this.handleCloseConfirmResend = this.handleCloseConfirmResend.bind(this)
         this.handleOpenConfirmDelete = this.handleOpenConfirmDelete.bind(this)
@@ -168,6 +169,10 @@ class Dashboard extends React.Component {
         e.stopPropagation()
 
         this.setState({ page: page })
+    }
+
+    handleChangeRowsPerPage(e) {
+        this.setState({ rowsPerPage: e.target.value })
     }
 
     removeExam(id) {
@@ -271,9 +276,12 @@ class Dashboard extends React.Component {
     }
 
     currentPage() {
-        const { data } = this.state
+        const {
+            data,
+            fetched,
+        } = this.state
 
-        if (is.empty(data)) {
+        if (is.empty(data) && fetched) {
             return PAGE_NO_EXAMS
         } else if (this.props.route.location.search.includes('filter=done')) {
             return PAGE_RECORDED_EXAMS

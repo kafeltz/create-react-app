@@ -29,8 +29,7 @@ import {
 
 import { getDevicesInfo } from './lib/api/device.js'
 import { getTokenStatus } from './lib/api/token.js'
-import { getExams } from './lib/api/exam.js'
-
+import { getExams, getExamRunning } from './lib/api/exam.js'
 
 import {
     API_ERROR,
@@ -41,7 +40,6 @@ import {
 
 import './App.css'
 import 'typeface-roboto'
-
 
 const theme = createMuiTheme({
     overrides: {
@@ -133,10 +131,6 @@ class App extends React.Component {
                 examIdTransmitting: examId,
                 isTransmitting: true,
             })
-
-            getExams()
-                .then(data => this.setState({ exams: data }))
-                .catch(e => appEvents.emit(API_EXCEPTION, e))
         })
 
         appEvents.on('TRANSMISSION_STOPPED', () => {
@@ -188,6 +182,36 @@ class App extends React.Component {
                     this.setState({ devices: devices })
                 }
             })
+            .catch(e => appEvents.emit(API_EXCEPTION, e))
+
+        getExamRunning()
+            .then(response => {
+                switch(response.status) {
+                    case 200:
+                        response.json().then(data => {
+                            this.setState({
+                                attached: false,
+                                examIdTransmitting: data.id,
+                                isTransmitting: true,
+                            })
+                        })
+                        break
+
+                    case 400:
+                        break
+
+                    default:
+                        appEvents.emit(API_ERROR, {
+                            method: 'getExamRunning',
+                            params: [],
+                            status: response.status,
+                        })
+                }
+            })
+            .catch(e => appEvents.emit(API_EXCEPTION, e))
+
+        getExams()
+            .then(data => this.setState({ exams: data }))
             .catch(e => appEvents.emit(API_EXCEPTION, e))
 
         this.getVideoDomElement = this.getVideoDomElement.bind(this)

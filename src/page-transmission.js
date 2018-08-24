@@ -59,24 +59,24 @@ const styles = theme => ({
     grid: {
         padding: theme.spacing.unit * 3,
     },
-    paper: {
-        padding: theme.spacing.unit * 3,
-    },
-    paperWarning: {
-        padding: theme.spacing.unit * 2,
-        marginBottom: theme.spacing.unit * 1,
-    },
     pageBusy: {
         opacity: 0.3,
         pointerEvents: 'none',
     },
+    paper: {
+        padding: theme.spacing.unit * 3,
+    },
+    paperWarning: {
+        marginBottom: theme.spacing.unit * 1,
+        padding: theme.spacing.unit * 2,
+    },
     player: {
         background: '#000',
         height: 'auto',
-        minHeight: 333,
         marginBottom: theme.spacing.unit * 3,
         marginLeft: 'auto',
         marginRight: 'auto',
+        minHeight: 333,
         position: 'relative',
         width: '100%',
     },
@@ -115,13 +115,13 @@ class Transmission extends React.Component {
 
         getDevicesInfo()
             .then(response => {
-                if (response.status === 200) {
-                // if (response.status === 404) {
-                    const devices = response.json()
-                    // const devices = [{
-                    //     'address': 'https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8',
-                    //     'id': 'f0e4fd5e-c3f5-4b13-8591-4099aaecc83d',
-                    // }]
+                // if (response.status === 200) {
+                if (response.status === 404) {
+                    // const devices = response.json()
+                    const devices = [{
+                        'address': 'https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8',
+                        'id': 'f0e4fd5e-c3f5-4b13-8591-4099aaecc83d',
+                    }]
 
                     loadSource(devices[0].address)
 
@@ -298,11 +298,11 @@ class Transmission extends React.Component {
                     <div className={classes.player}>
                         <Typography variant="subheading" className={classes.playerNoDeviceMessage}>Dispositivo de transmissão não encontrado!</Typography>
                     </div>
-                    )
+                )
             } else {
                 return (
                     <video ref={this.playerDom} className={classes.player} muted autoPlay />
-                    )
+                )
             }
         }
 
@@ -327,14 +327,14 @@ class Transmission extends React.Component {
                         className={snackbarClass}
                         message={snackbarMessage}
                         action={[
-                        <IconButton
-                            key="close"
-                            aria-label="Close"
-                            color="inherit"
-                            onClick={this.handleCloseSnackbar}
-                        >
-                            <CloseIcon />
-                        </IconButton>,
+                            <IconButton
+                                key="close"
+                                aria-label="Close"
+                                color="inherit"
+                                onClick={this.handleCloseSnackbar}
+                            >
+                                <CloseIcon />
+                            </IconButton>,
                         ]}
                     />
                 </Snackbar>
@@ -372,22 +372,22 @@ class Transmission extends React.Component {
                         <Grid container className={classes.grid} justify="center">
                             <Grid item lg={5} md={10} sm={12}>
                                 {isThereexamIdRunning && (
-                                <Paper className={classes.paperWarning}>
-                                    <Typography color="error">
-                                        Está sendo transmitido um exame, você deve primeiro finalizá-lo.
+                                    <Paper className={classes.paperWarning}>
+                                        <Typography color="error">
+                                            Está sendo transmitido um exame, você deve primeiro finalizá-lo.
 
-                                        <Button
-                                            component={Link}
-                                            to={`/transmission/${examIdRunning}`}
-                                            className={classes.button}
-                                            color="primary"
-                                            onClick={e => document.location.reload()}
-                                        >
-                                            Abrir exame
-                                        </Button>
+                                            <Button
+                                                component={Link}
+                                                to={`/transmission/${examIdRunning}`}
+                                                className={classes.button}
+                                                color="primary"
+                                                onClick={e => document.location.reload()}
+                                            >
+                                                Abrir exame
+                                            </Button>
 
-                                    </Typography>
-                                </Paper>
+                                        </Typography>
+                                    </Paper>
                                 )}
 
                                 <Paper className={classes.paper}>
@@ -407,8 +407,8 @@ class Transmission extends React.Component {
                     </Grid>
                 </Grid>
             </div>
-            )
-}
+        )
+    }
 }
 
 Transmission.propTypes = {
