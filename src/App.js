@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { BrowserRouter as Router, Route } from 'react-router-dom'
 
 import Button from '@material-ui/core/Button'
@@ -85,7 +85,7 @@ const theme = createMuiTheme({
     },
 })
 
-class App extends Component {
+class App extends React.Component {
     constructor(props) {
         super(props)
 

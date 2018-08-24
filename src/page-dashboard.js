@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
 import is from 'is_js'
 
@@ -60,12 +60,12 @@ const PAGE_RECORDED_EXAMS = 'PAGE_RECORDED_EXAMS'
 
 const styles = theme => ({
     appbarSearch: {
+        background: theme.palette.grey[100],
+        borderRadius: '2px',
         marginRight: theme.spacing.unit,
         padding: '2px',
         paddingLeft: '8px',
         paddingRight: '8px',
-        background: theme.palette.grey[100],
-        borderRadius: '2px',
     },
     button: {
         marginLeft: theme.spacing.unit,
@@ -112,6 +112,11 @@ const styles = theme => ({
         justifyContent: 'center',
         padding: theme.spacing.unit * 3,
     },
+    paper: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+    },
     searchIcon: {
         color: '#757575',
     },
@@ -119,18 +124,13 @@ const styles = theme => ({
         color: '#757575',
         cursor: 'pointer',
     },
-    paper: {
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-    },
     text: {
         marginBottom: theme.spacing.unit * 3,
         marginTop: theme.spacing.unit * 3,
     },
 })
 
-class Dashboard extends Component {
+class Dashboard extends React.Component {
     constructor(props) {
         super(props)
 
@@ -138,19 +138,19 @@ class Dashboard extends Component {
 
         this.state = {
             chosenId: '', // qual id do exame que foi selecionado na hora de clicar em algum botão de ação que abrirá o dialog (como o excluir)
-            data: [],
+            data: [], // lista de exames
+            noData: false, // usado pra saber que não existem dados, veificar se `data` é length === 0 é ruim porque os dados podem não ter vindo ainda, ou o server tá fora, e daí exibe a tela errada
             dialogConfirmDeleteOpen: false,
             dialogConfirmResendOpen: false,
+            filter: false, // indica se é pra filtrar ou não os dados conforme a string no input (normalmente quando apertar a tecla enter)
             page: 0,
             rowsPerPage: 10,
             search: '', // string que será usada pra filtrar os dados
-            filter: false, // indica se é pra filtrar ou não os dados conforme a string no input (normalmente quando apertar a tecla enter)
         }
 
         getExams()
             .then(data => this.setState({ data: data }))
             .catch(e => appEvents.emit(API_EXCEPTION, e))
-
 
         appEvents.emit('CAN_RENDER_FLOAT_PLAYER', true)
 
@@ -167,7 +167,7 @@ class Dashboard extends Component {
     handleChangePage(e, page) {
         e.stopPropagation()
 
-        this.setState({ page })
+        this.setState({ page: page })
     }
 
     removeExam(id) {
@@ -208,19 +208,19 @@ class Dashboard extends Component {
             notifyExam(chosenId)
                 .then(response => {
                     switch(response.status) {
-                    case 200:
-                    case 202:
-                    break
+                        case 200:
+                        case 202:
+                            break
 
-                    case 400:
-                    case 404:
-                    default:
-                        appEvents.emit(API_ERROR, {
-                            method: 'disableExam',
-                            params: [{ chosenId: chosenId }],
-                            status: response.status,
-                        })
-                        break
+                        case 400:
+                        case 404:
+                        default:
+                            appEvents.emit(API_ERROR, {
+                                method: 'disableExam',
+                                params: [{ chosenId: chosenId }],
+                                status: response.status,
+                            })
+                            break
                     }
                 })
                 .catch(e => appEvents.emit(API_EXCEPTION, e))
