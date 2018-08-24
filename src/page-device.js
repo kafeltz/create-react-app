@@ -17,8 +17,9 @@ import { withStyles } from '@material-ui/core/styles'
 import is from 'is_js'
 
 import {
-    events as appEvents,
     API_ERROR,
+    API_EXCEPTION,
+    events as appEvents,
 } from './events.js'
 
 import {
@@ -70,7 +71,9 @@ class Device extends React.Component {
         }
 
         if (props.fetchOnInit) {
-            getDevices().then(data => this.setState({ devices: data }))
+            getDevices()
+                .then(data => this.setState({ devices: data }))
+                .catch(e => appEvents.emit(API_EXCEPTION, e))
         }
 
         this.handleButtonClick = this.handleButtonClick.bind(this)
@@ -114,6 +117,7 @@ class Device extends React.Component {
                 }
             })
             .then(() => this.setState({ busy: false }))
+            .catch(e => appEvents.emit(API_EXCEPTION, e))
     }
 
     render() {

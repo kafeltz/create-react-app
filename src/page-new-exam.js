@@ -23,8 +23,9 @@ import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
 
 import {
-    events as appEvents,
+    API_EXCEPTION,
     SNACK_SUCCESS,
+    events as appEvents,
 } from './events.js'
 
 import Menu from './component-menu.js'
@@ -497,11 +498,10 @@ class NewExam extends React.Component {
                         }
                     })
                 }
-            })
-            .catch(e => {
+
                 this.setState({ busy: false })
-                console.error(e.message)
             })
+            .catch(e => appEvents.emit(API_EXCEPTION, e))
     }
 
     handleSaveAndGo(e) {

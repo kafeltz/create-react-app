@@ -38,8 +38,9 @@ import emptyImage from './assets/doctor.svg'
 import Menu from './component-menu.js'
 
 import {
-    events as appEvents,
     API_ERROR,
+    API_EXCEPTION,
+    events as appEvents,
 } from './events.js'
 
 import {
@@ -146,9 +147,10 @@ class Dashboard extends Component {
             filter: false, // indica se é pra filtrar ou não os dados conforme a string no input (normalmente quando apertar a tecla enter)
         }
 
-        const exams = getExams()
+        getExams()
+            .then(data => this.setState({ data: data }))
+            .catch(e => appEvents.emit(API_EXCEPTION, e))
 
-        exams.then(data => this.setState({ data: data }))
 
         appEvents.emit('CAN_RENDER_FLOAT_PLAYER', true)
 
@@ -188,6 +190,7 @@ class Dashboard extends Component {
                         this.removeExam(chosenId)
                     }
                 })
+                .catch(e => appEvents.emit(API_EXCEPTION, e))
         }
 
         this.setState({
@@ -220,6 +223,7 @@ class Dashboard extends Component {
                         break
                     }
                 })
+                .catch(e => appEvents.emit(API_EXCEPTION, e))
         }
 
         this.setState({

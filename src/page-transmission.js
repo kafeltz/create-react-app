@@ -34,6 +34,7 @@ import Menu from './component-menu.js'
 import { toDate } from './lib/date.js'
 
 import {
+    API_EXCEPTION,
     events as appEvents,
 } from './events.js'
 
@@ -151,30 +152,34 @@ class Transmission extends React.Component {
             snackbarOpen: false,
         }
 
-        getExams().then(data => {
-            this.setState({ data: data })
+        getExams()
+            .then(data => {
+                this.setState({ data: data })
 
-            const exam = data.find(x => x.id === this.state.id)
+                const exam = data.find(x => x.id === this.state.id)
 
-            if (exam) {
-                this.setState({
-                    patientEmails: exam.emails,
-                    patientName: exam.patient,
-                    patientPhones: exam.phones,
-                    patientScheduled: exam.scheduled,
-                })
-            }
-        })
+                if (exam) {
+                    this.setState({
+                        patientEmails: exam.emails,
+                        patientName: exam.patient,
+                        patientPhones: exam.phones,
+                        patientScheduled: exam.scheduled,
+                    })
+                }
+            })
+            .catch(e => appEvents.emit(API_EXCEPTION, e))
 
-        getExamRunning().then(data => {
-            const { id } = this.state
+        getExamRunning()
+            .then(data => {
+                const { id } = this.state
 
-            this.setState({ examIdRunning: data.id })
+                this.setState({ examIdRunning: data.id })
 
-            if (data.id === id) {
-                this.setState({ busy: id })
-            }
-        })
+                if (data.id === id) {
+                    this.setState({ busy: id })
+                }
+            })
+            .catch(e => appEvents.emit(API_EXCEPTION, e))
 
         this.playerDom = React.createRef()
 
@@ -241,6 +246,7 @@ class Transmission extends React.Component {
                     return response
                 })
                 .then(() => this.setState({ busy: false }))
+                .catch(e => appEvents.emit(API_EXCEPTION, e))
 
         } else {
             this.setState({ busy: true })
@@ -261,6 +267,7 @@ class Transmission extends React.Component {
 
                     return response
                 })
+                .catch(e => appEvents.emit(API_EXCEPTION, e))
         }
     }
 
@@ -291,11 +298,11 @@ class Transmission extends React.Component {
                     <div className={classes.player}>
                         <Typography variant="subheading" className={classes.playerNoDeviceMessage}>Dispositivo de transmissão não encontrado!</Typography>
                     </div>
-                )
+                    )
             } else {
                 return (
                     <video ref={this.playerDom} className={classes.player} muted autoPlay />
-                )
+                    )
             }
         }
 
@@ -320,14 +327,14 @@ class Transmission extends React.Component {
                         className={snackbarClass}
                         message={snackbarMessage}
                         action={[
-                            <IconButton
-                                key="close"
-                                aria-label="Close"
-                                color="inherit"
-                                onClick={this.handleCloseSnackbar}
-                            >
-                                <CloseIcon />
-                            </IconButton>,
+                        <IconButton
+                            key="close"
+                            aria-label="Close"
+                            color="inherit"
+                            onClick={this.handleCloseSnackbar}
+                        >
+                            <CloseIcon />
+                        </IconButton>,
                         ]}
                     />
                 </Snackbar>
@@ -365,22 +372,22 @@ class Transmission extends React.Component {
                         <Grid container className={classes.grid} justify="center">
                             <Grid item lg={5} md={10} sm={12}>
                                 {isThereexamIdRunning && (
-                                    <Paper className={classes.paperWarning}>
-                                        <Typography color="error">
-                                            Está sendo transmitido um exame, você deve primeiro finalizá-lo.
+                                <Paper className={classes.paperWarning}>
+                                    <Typography color="error">
+                                        Está sendo transmitido um exame, você deve primeiro finalizá-lo.
 
-                                            <Button
-                                                component={Link}
-                                                to={`/transmission/${examIdRunning}`}
-                                                className={classes.button}
-                                                color="primary"
-                                                onClick={e => document.location.reload()}
-                                            >
-                                                Abrir exame
-                                            </Button>
+                                        <Button
+                                            component={Link}
+                                            to={`/transmission/${examIdRunning}`}
+                                            className={classes.button}
+                                            color="primary"
+                                            onClick={e => document.location.reload()}
+                                        >
+                                            Abrir exame
+                                        </Button>
 
-                                        </Typography>
-                                    </Paper>
+                                    </Typography>
+                                </Paper>
                                 )}
 
                                 <Paper className={classes.paper}>
@@ -400,8 +407,8 @@ class Transmission extends React.Component {
                     </Grid>
                 </Grid>
             </div>
-        )
-    }
+            )
+}
 }
 
 Transmission.propTypes = {

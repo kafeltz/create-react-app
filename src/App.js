@@ -1,8 +1,14 @@
 import React, { Component } from 'react'
 import { BrowserRouter as Router, Route } from 'react-router-dom'
 
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
+import Button from '@material-ui/core/Button'
 import CssBaseline from '@material-ui/core/CssBaseline'
+import Dialog from '@material-ui/core/Dialog'
+import DialogActions from '@material-ui/core/DialogActions'
+import DialogContent from '@material-ui/core/DialogContent'
+import DialogContentText from '@material-ui/core/DialogContentText'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
 
 import PageConfig from './page-config.js'
 import PageDashboard from './page-dashboard.js'
@@ -28,8 +34,9 @@ import { getExams } from './lib/api/exam.js'
 
 import {
     API_ERROR,
-    events as appEvents,
+    API_EXCEPTION,
     SNACK_SUCCESS,
+    events as appEvents,
 } from './events.js'
 
 import './App.css'
@@ -89,13 +96,14 @@ class App extends Component {
             // informa se pode ou não é a sub-página para a página pai através de eventos
             canRenderFloatPlayer: false,
             devices: [],
+            dialogFatalErrorOpen: false,
             examIdTransmitting: '',
             exams: [],
             isTransmitting: false,
             playerIsReadyToPlay: false,
             playerOpen: false,
-            snackbarOpen: false,
             snackbarMessage: '',
+            snackbarOpen: false,
             tokenIsValid: false,
             tokenOk: null, // null, true or false
         }
@@ -117,6 +125,7 @@ class App extends Component {
                         this.router.current.history.push('/token')
                 }
             })
+            .catch(e => appEvents.emit(API_EXCEPTION, e))
 
         appEvents.on('TRANSMISSION_STARTED', ({ examId, deviceM3U8 }) => {
             this.setState({
@@ -125,7 +134,9 @@ class App extends Component {
                 isTransmitting: true,
             })
 
-            getExams().then(data => this.setState({ exams: data }))
+            getExams()
+                .then(data => this.setState({ exams: data }))
+                .catch(e => appEvents.emit(API_EXCEPTION, e))
         })
 
         appEvents.on('TRANSMISSION_STOPPED', () => {
@@ -153,6 +164,11 @@ class App extends Component {
             console.error('API_ERROR', context)
         })
 
+        appEvents.on(API_EXCEPTION, e => {
+            this.setState({ dialogFatalErrorOpen: true })
+            console.error('API_EXCEPTION', e.message)
+        })
+
         appEvents.on(SNACK_SUCCESS, message => {
             this.setState({
                 snackbarMessage: message,
@@ -172,9 +188,11 @@ class App extends Component {
                     this.setState({ devices: devices })
                 }
             })
+            .catch(e => appEvents.emit(API_EXCEPTION, e))
 
         this.getVideoDomElement = this.getVideoDomElement.bind(this)
         this.handleCloseSnackbar = this.handleCloseSnackbar.bind(this)
+        this.handleFatalErrorDialogClose = this.handleFatalErrorDialogClose.bind(this)
         this.handlePlayerClick = this.handlePlayerClick.bind(this)
     }
 
@@ -204,9 +222,16 @@ class App extends Component {
         }
     }
 
+    handleFatalErrorDialogClose(e) {
+        e.stopPropagation()
+
+        this.setState({ dialogFatalErrorOpen: false })
+    }
+
     render() {
         const {
             canRenderFloatPlayer,
+            dialogFatalErrorOpen,
             examIdTransmitting,
             exams,
             isTransmitting,
@@ -238,6 +263,29 @@ class App extends Component {
             isTransmitting,
         }
 
+        const fatalErrorModal = () => {
+            return (
+                <Dialog
+                    open={dialogFatalErrorOpen}
+                    onClose={this.handleFatalErrorDialogClose}
+                >
+                    <DialogTitle>Erro!</DialogTitle>
+
+                    <DialogContent>
+                        <DialogContentText>
+                            Ocorreu um erro interno no sistema, tente novamente.
+                        </DialogContentText>
+                    </DialogContent>
+
+                    <DialogActions>
+                        <Button onClick={this.handleFatalErrorDialogClose} color="primary">
+                            Ok
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            )
+        }
+
         return (
             <MuiThemeProvider theme={theme}>
                 <Router ref={this.router}>
@@ -257,6 +305,8 @@ class App extends Component {
                         {canRenderFloatPlayer && player}
 
                         <Snack type={snackbarType} onClose={this.handleCloseSnackbar} snackbarMessage={snackbarMessage} snackbarOpen={snackbarOpen} />
+
+                        {fatalErrorModal()}
                     </React.Fragment>
                 </Router>
             </MuiThemeProvider>
