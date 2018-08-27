@@ -7,7 +7,7 @@ function getExams() {
     const method = 'GET'
 
     const headers = new Headers()
-    headers.append('content-type', 'application/json;charset=UTF-8')
+    headers.append('Content-Type', 'application/json;charset=UTF-8')
 
     const params = {
         headers: headers,
@@ -30,7 +30,7 @@ function saveExam({ patientName, datetime, phones, emails }) {
     }
     const json = JSON.stringify(payload)
 
-    headers.append('content-type', 'application/json;charset=UTF-8')
+    headers.append('Content-Type', 'application/json;charset=UTF-8')
 
     const params = {
         body: json,
@@ -46,7 +46,7 @@ function startExam(examId) {
     const method = 'POST'
     const headers = new Headers()
 
-    headers.append('content-type', 'application/json;charset=UTF-8')
+    headers.append('Content-Type', 'application/json;charset=UTF-8')
 
     const params = {
         headers: headers,
@@ -61,7 +61,7 @@ function stopExam(examId) {
     const method = 'POST'
     const headers = new Headers()
 
-    headers.append('content-type', 'application/json;charset=UTF-8')
+    headers.append('Content-Type', 'application/json;charset=UTF-8')
 
     const params = {
         headers: headers,
@@ -76,7 +76,7 @@ function disableExam(examId) {
     const method = 'POST'
     const headers = new Headers()
 
-    headers.append('content-type', 'application/json;charset=UTF-8')
+    headers.append('Content-Type', 'application/json;charset=UTF-8')
 
     const params = {
         headers: headers,
@@ -91,7 +91,7 @@ function getExamRunning() {
     const method = 'GET'
     const headers = new Headers()
 
-    headers.append('content-type', 'application/json;charset=UTF-8')
+    headers.append('Content-Type', 'application/json;charset=UTF-8')
 
     const params = {
         headers: headers,
@@ -106,7 +106,7 @@ function notifyExam(examId) {
     const method = 'POST'
     const headers = new Headers()
 
-    headers.append('content-type', 'application/json;charset=UTF-8')
+    headers.append('Content-Type', 'application/json;charset=UTF-8')
 
     const params = {
         headers: headers,

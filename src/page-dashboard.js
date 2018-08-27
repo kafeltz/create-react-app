@@ -370,7 +370,7 @@ class Dashboard extends React.Component {
                 )
             })
 
-            const count = data.length
+            const count = rows.length
 
             return (
                 <React.Fragment>

@@ -5,7 +5,7 @@ function getTokenStatus() {
     const method = 'GET'
 
     const headers = new Headers()
-    headers.append('content-type', 'application/json;charset=UTF-8')
+    headers.append('Content-Type', 'application/json;charset=UTF-8')
 
     const params = {
         headers: headers,
@@ -24,7 +24,7 @@ function setToken(token) {
     }
     const json = JSON.stringify(payload)
 
-    headers.append('content-type', 'application/json;charset=UTF-8')
+    headers.append('Content-Type', 'application/json;charset=UTF-8')
 
     const params = {
         body: json,

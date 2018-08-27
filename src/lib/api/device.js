@@ -5,7 +5,7 @@ function getDevices() {
     const method = 'GET'
 
     const headers = new Headers()
-    headers.append('content-type', 'application/json;charset=UTF-8')
+    headers.append('Content-Type', 'application/json;charset=UTF-8')
 
     const params = {
         headers: headers,
@@ -33,7 +33,7 @@ function setDevice(address) {
     }
     const json = JSON.stringify(payload)
 
-    headers.append('content-type', 'application/json;charset=UTF-8')
+    headers.append('Content-Type', 'application/json;charset=UTF-8')
 
     const params = {
         body: json,
@@ -49,7 +49,7 @@ function getDeviceStatus() {
     const method = 'GET'
     const headers = new Headers()
 
-    headers.append('content-type', 'application/json;charset=UTF-8')
+    headers.append('Content-Type', 'application/json;charset=UTF-8')
 
     const params = {
         headers: headers,
@@ -64,7 +64,7 @@ function getDevicesInfo() {
     const method = 'GET'
     const headers = new Headers()
 
-    headers.append('content-type', 'application/json;charset=UTF-8')
+    headers.append('Content-Type', 'application/json;charset=UTF-8')
 
     const params = {
         headers: headers,
