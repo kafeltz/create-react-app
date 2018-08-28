@@ -1,5 +1,5 @@
 import React from 'react'
-import { BrowserRouter as Router, Route } from 'react-router-dom'
+import { HashRouter as Router, Route } from 'react-router-dom'
 
 import Button from '@material-ui/core/Button'
 import CssBaseline from '@material-ui/core/CssBaseline'
@@ -13,7 +13,6 @@ import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
 import PageConfig from './page-config.js'
 import PageDashboard from './page-dashboard.js'
 import PageDevice from './page-device.js'
-import PageHome from './page-home.js'
 import PageNewExam from './page-new-exam.js'
 import PagePlaygrounds from './page-playgrounds.js'
 import PageToken from './page-token.js'
@@ -43,6 +42,13 @@ import 'typeface-roboto'
 
 const theme = createMuiTheme({
     overrides: {
+        MuiAppBar: {
+            colorDefault: {
+                backgroundColor: 'white',
+                borderBottom: '1px solid #e0e0e0',
+                boxShadow: 'unset',
+            }
+        },
         MuiButton: {
             containedSecondary: {
                 color: 'white',
@@ -50,13 +56,6 @@ const theme = createMuiTheme({
             textPrimary: {
                 color: '#006fb6',
             },
-        },
-        MuiAppBar: {
-            colorDefault: {
-                backgroundColor: 'white',
-                borderBottom: '1px solid #e0e0e0',
-                boxShadow: 'unset',
-            }
         },
     },
     palette: {
@@ -197,7 +196,12 @@ class App extends React.Component {
                         })
                         break
 
-                    case 400:
+                    case 404:
+                        this.setState({
+                            attached: false,
+                            examIdTransmitting: '',
+                            isTransmitting: false,
+                        })
                         break
 
                     default:
@@ -316,11 +320,11 @@ class App extends React.Component {
                     <React.Fragment>
                         <CssBaseline />
 
-                        <Route exact path="/" component={PageHome} />
+                        <Route exact path="/" render={ props => <PageToken route={{...props}} /> } />
                         <Route path="/dashboard" render={ props => <PageDashboard route={{...props}} /> } />
-                        <Route path="/new-exam"  render={ props => <PageNewExam route={{...props}} /> } />
-                        <Route path="/token"     render={ props => <PageToken route={{...props}} /> } />
-                        <Route path="/device"    render={ props => <PageDevice route={{...props}} /> } />
+                        <Route path="/new-exam" render={ props => <PageNewExam route={{...props}} /> } />
+                        <Route path="/token" render={ props => <PageToken route={{...props}} /> } />
+                        <Route path="/device" render={ props => <PageDevice route={{...props}} /> } />
                         <Route path="/config" component={PageConfig} />
                         <Route path="/transmission/:id" render={ props => <PageTransmission route={{...props}} parentProps={ {...parentProps} } /> } />
 

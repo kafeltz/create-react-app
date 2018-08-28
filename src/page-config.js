@@ -1,7 +1,6 @@
 import React from 'react'
 
 import AppBar from '@material-ui/core/AppBar'
-import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
 import Input from '@material-ui/core/Input'
 import Paper from '@material-ui/core/Paper'
@@ -11,22 +10,35 @@ import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
 
 import { getTokenStatus } from './lib/api/token.js'
+import { getDeviceStatus } from './lib/api/device.js'
 
 import Menu from './component-menu.js'
 
+import {
+    events as appEvents,
+    API_ERROR,
+} from './events.js'
+
 const styles = theme => ({
-    button: {
-        marginLeft: theme.spacing.unit,
-        marginRight: theme.spacing.unit,
-    },
+    appBarSpacer: theme.mixins.toolbar,
     flex: {
         flexGrow: 1,
     },
     grid: {
         padding: theme.spacing.unit * 3,
     },
-    paper: {
+    main: {
+        flexGrow: 1,
+        height: '100vh',
         padding: theme.spacing.unit * 3,
+    },
+    paper: {
+        margin: 'auto',
+        padding: theme.spacing.unit * 2,
+        width: 600,
+    },
+    root: {
+        display: 'flex',
     },
 })
 
@@ -35,64 +47,123 @@ class Config extends React.Component {
         super(props)
 
         this.state = {
+            device: '',
             token: '',
         }
 
-        getTokenStatus().then(response => response.json()).then(json => this.setState({ token: json.token }))
+        getTokenStatus().then(response => this.setToken(response))
+        getDeviceStatus().then(response => this.setDevice(response))
+    }
+
+    setToken(response) {
+        switch(response.status) {
+            case 200:
+                response.json().then(json => this.setState({ token: json.token }))
+                break
+
+            case 401:
+                this.setState({ token: 'Token cadastrado é inválido!' })
+                break
+
+            case 404:
+                this.setState({ token: 'Token não cadastrado!' })
+                break
+
+            default:
+                appEvents.emit(API_ERROR, {
+                    method: 'getTokenStatus',
+                    params: [],
+                    status: response.status,
+                })
+        }
+    }
+
+    setDevice(response) {
+        switch(response.status) {
+            case 200:
+                response.json().then(json => this.setState({ device: json.address }))
+                break
+
+            case 404:
+                this.setState({ device: 'Dispositivo não encontrado!' })
+                break
+
+            default:
+                appEvents.emit(API_ERROR, {
+                    method: 'getDeviceStatus',
+                    params: [],
+                    status: response.status,
+                })
+        }
+
+        return response
     }
 
     render() {
         const { classes } = this.props
         const {
+            device,
             token,
         } = this.state
 
         return (
-            <div>
-                <Grid container>
-                    <Grid item xs={2}>
-                        <Menu />
-                    </Grid>
+            <React.Fragment>
+                <div className={classes.root}>
+                    <Menu />
 
-                    <Grid item xs={10}>
-                        <AppBar position="static" color="default">
-                            <Toolbar>
-                                <Typography variant="title" color="inherit" className={classes.flex}>
-                                    Configurações
-                                </Typography>
+                    <AppBar position="absolute" color="default">
+                        <Toolbar>
+                            <Typography variant="title" color="inherit" className={classes.flex}>
+                                Configurações
+                            </Typography>
+                        </Toolbar>
+                    </AppBar>
 
-                                <Button variant="contained" color="secondary" className={classes.button} onClick={this.handleSaveAndGo}>
-                                    Salvar
-                                </Button>
-                            </Toolbar>
-                        </AppBar>
+                    <main className={classes.main}>
+                        <div className={classes.appBarSpacer} />
 
-                        <Grid container className={classes.grid} justify="center">
-                            <Grid item lg={6} md={12} sm={12}>
-                                <Paper className={classes.paper}>
-                                    <Grid container justify="space-between">
-                                        <Grid item xs={4} className={classes.formRow}>
-                                            <div className={classes.fieldsInfo}>
-                                                <Typography color="textPrimary" variant="body1">
-                                                    Token de acesso
-                                                </Typography>
+                        <Paper className={classes.paper}>
+                            <Grid container justify="space-between">
+                                <Grid item xs={4} className={classes.formRow}>
+                                    <div className={classes.fieldsInfo}>
+                                        <Typography color="textPrimary" variant="body1">
+                                            Token de acesso
+                                        </Typography>
 
-                                                <Typography color="textSecondary" variant="caption">
-                                                    Informe a sua chave de acesso para o uso do Vlab Exames
-                                                </Typography>
-                                            </div>
-                                        </Grid>
+                                        <Typography color="textSecondary" variant="caption">
+                                            Chave de acesso para o uso do Vlab Exames
+                                        </Typography>
+                                    </div>
+                                </Grid>
 
-                                        <Grid item xs={7} className={classes.formRow}>
-                                            <Input fullWidth readOnly={true} value={token} />
-                                        </Grid>
-                                    </Grid>
-                                </Paper>
+                                <Grid item xs={7} className={classes.formRow}>
+                                    <Input fullWidth readOnly={true} value={token} disableUnderline />
+                                </Grid>
                             </Grid>
-                        </Grid>
-                    </Grid>
-                </Grid>
-            </div>
+
+                            <br />
+
+                            <Grid container justify="space-between">
+                                <Grid item xs={4} className={classes.formRow}>
+                                    <div className={classes.fieldsInfo}>
+                                        <Typography color="textPrimary" variant="body1">
+                                            Dispositivo
+                                        </Typography>
+
+                                        <Typography color="textSecondary" variant="caption">
+                                            Endereço do dispositivo de captura de vídeo
+                                        </Typography>
+                                    </div>
+                                </Grid>
+
+                                <Grid item xs={7} className={classes.formRow}>
+                                    <Input fullWidth readOnly={true} value={device} disableUnderline />
+                                </Grid>
+                            </Grid>
+                        </Paper>
+                    </main>
+                </div>
+            </React.Fragment>
         )
     }
 }

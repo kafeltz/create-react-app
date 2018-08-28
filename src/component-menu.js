@@ -11,31 +11,34 @@ import SettingsSharpIcon from '@material-ui/icons/SettingsSharp'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import { Link } from 'react-router-dom'
 
+export const drawerWidth = 260
+
 const styles = theme => ({
-    logoBackground: {
-        height: 64,
-        background: theme.palette.primary.main,
+    content: {
+        backgroundColor: theme.palette.background.default,
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    toolbarListItemText: {
-        color: 'red',
+        flexGrow: 1,
     },
     drawerPaper: {
         position: 'relative',
-        width: '100%',
+        whiteSpace: 'nowrap',
+        width: drawerWidth,
     },
     logo: {
-        width: '72px',
-        height: '17px',
         filter: 'brightness(0) invert(1)',
+        height: '17px',
+        width: '72px',
+    },
+    logoBackground: {
+        alignItems: 'center',
+        background: theme.palette.primary.main,
+        display: 'flex',
+        height: 64,
+        justifyContent: 'center',
     },
     toolbar: theme.mixins.toolbar,
-    content: {
-        flexGrow: 1,
-        backgroundColor: theme.palette.background.default,
-        display: 'flex',
+    toolbarListItemText: {
+        color: 'red',
     },
 })
 

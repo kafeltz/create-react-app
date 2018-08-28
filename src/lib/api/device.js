@@ -12,16 +12,16 @@ function getDevices() {
         method: method,
     }
 
-    // return fetch(url, params).then(response => response.json())
-    return fetch(url, params).then(response => {
-        return [{
-                "address": "http://192.168.0.31:8100"
-            },
-            {
-                "address": "http://0.0.0.0:8100"
-            },
-        ]
-    })
+    return fetch(url, params).then(response => response.json())
+    // return fetch(url, params).then(response => {
+    //     return [{
+    //             "address": "http://192.168.0.31:8100"
+    //         },
+    //         {
+    //             "address": "http://0.0.0.0:8100"
+    //         },
+    //     ]
+    // })
 }
 
 function setDevice(address) {

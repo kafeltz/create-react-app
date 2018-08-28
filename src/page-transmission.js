@@ -345,7 +345,7 @@ class Transmission extends React.Component {
                     </Grid>
 
                     <Grid item xs={10}>
-                        <AppBar position="static" color="default">
+                        <AppBar position="absolute" color="default">
                             <Toolbar>
                                 <div className={classes.flex}>
                                     <Typography variant="title">

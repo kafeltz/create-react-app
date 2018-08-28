@@ -4,7 +4,6 @@ import is from 'is_js'
 
 import AppBar from '@material-ui/core/AppBar'
 import Button from '@material-ui/core/Button'
-import Grid from '@material-ui/core/Grid'
 import Input from '@material-ui/core/Input'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import Paper from '@material-ui/core/Paper'
@@ -59,6 +58,7 @@ const PAGE_EXAMS = 'PAGE_EXAMS'
 const PAGE_RECORDED_EXAMS = 'PAGE_RECORDED_EXAMS'
 
 const styles = theme => ({
+    appBarSpacer: theme.mixins.toolbar,
     appbarSearch: {
         background: theme.palette.grey[100],
         borderRadius: '2px',
@@ -87,6 +87,11 @@ const styles = theme => ({
         marginLeft: 5,
         marginRight: 5,
     },
+    main: {
+        flexGrow: 1,
+        height: '100vh',
+        padding: theme.spacing.unit * 3,
+    },
     modalButtons: {
         marginTop: theme.spacing.unit * 2,
         textAlign: 'right',
@@ -113,9 +118,8 @@ const styles = theme => ({
         padding: theme.spacing.unit * 3,
     },
     paper: {
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
+        margin: 'auto',
+        padding: theme.spacing.unit * 2,
     },
     searchIcon: {
         color: '#757575',
@@ -128,6 +132,10 @@ const styles = theme => ({
         marginBottom: theme.spacing.unit * 3,
         marginTop: theme.spacing.unit * 3,
     },
+    root: {
+        display: 'flex',
+    },
+    toolbar: theme.mixins.toolbar,
 })
 
 class Dashboard extends React.Component {
@@ -434,93 +442,89 @@ class Dashboard extends React.Component {
         }
 
         return (
-            <div>
-                <Grid container>
-                    <Grid item xs={2}>
-                        <Menu />
-                    </Grid>
+            <React.Fragment>
+                <div className={classes.root}>
+                    <Menu />
 
-                    <Grid item xs={10}>
-                        <AppBar position="static" color="default">
-                            <Toolbar>
-                                <Typography variant="title" color="inherit" className={classes.flex}>
-                                    {pageTitle()}
-                                </Typography>
+                    <AppBar position="absolute" color="default">
+                        <Toolbar>
+                            <Typography variant="title" color="inherit" className={classes.flex}>
+                                {pageTitle()}
+                            </Typography>
 
-                                <Input
-                                    className={classes.appbarSearch}
-                                    onChange={this.handleSearchOnChange}
-                                    disableUnderline={true}
-                                    value={search}
-                                    startAdornment={
-                                        <InputAdornment position="start"><SearchIcon className={classes.searchIcon} /></InputAdornment>
-                                    }
+                            <Input
+                                className={classes.appbarSearch}
+                                onChange={this.handleSearchOnChange}
+                                disableUnderline={true}
+                                value={search}
+                                startAdornment={
+                                    <InputAdornment position="start"><SearchIcon className={classes.searchIcon} /></InputAdornment>
+                                }
 
-                                    endAdornment={
-                                        <InputAdornment position="end" onClick={this.handleSearchClear}><CloseIcon className={classes.searchIconEndAdornsement} /></InputAdornment>
-                                    }
-                                />
+                                endAdornment={
+                                    <InputAdornment position="end" onClick={this.handleSearchClear}><CloseIcon className={classes.searchIconEndAdornsement} /></InputAdornment>
+                                }
+                            />
 
-                                {newButton}
-                            </Toolbar>
-                        </AppBar>
+                            {newButton}
+                        </Toolbar>
+                    </AppBar>
 
-                        <Grid container className={classes.grid} justify="center">
-                            <Grid item xs={12} className={classes.relative}>
-                                <Paper className={classes.paper}>
-                                    {renderPage()}
-                                </Paper>
-                            </Grid>
-                        </Grid>
-                    </Grid>
-                </Grid>
+                    <main className={classes.main}>
+                        <div className={classes.appBarSpacer} />
 
-                <Dialog
-                    open={dialogConfirmDeleteOpen}
-                    onClose={e => this.handleCloseConfirmDelete(e, false)}
-                >
-                    <DialogTitle>Deseja apagar este exame?</DialogTitle>
+                        <Paper className={classes.paper}>
+                            {renderPage()}
+                        </Paper>
+                    </main>
 
-                    <DialogContent>
-                        <DialogContentText>
-                            Esta ação não poderá ser desfeita.
-                        </DialogContentText>
-                    </DialogContent>
+                    <Dialog
+                        open={dialogConfirmDeleteOpen}
+                        onClose={e => this.handleCloseConfirmDelete(e, false)}
+                    >
+                        <DialogTitle>Deseja apagar este exame?</DialogTitle>
 
-                    <DialogActions>
-                        <Button onClick={e => this.handleCloseConfirmDelete(e, false)} color="primary">
-                            Cancelar
-                        </Button>
+                        <DialogContent>
+                            <DialogContentText>
+                                Esta ação não poderá ser desfeita.
+                            </DialogContentText>
+                        </DialogContent>
 
-                        <Button onClick={e => this.handleCloseConfirmDelete(e, true)} color="primary">
-                            Apagar
-                        </Button>
-                    </DialogActions>
-                </Dialog>
+                        <DialogActions>
+                            <Button onClick={e => this.handleCloseConfirmDelete(e, false)} color="primary">
+                                Cancelar
+                            </Button>
 
-                <Dialog
-                    open={dialogConfirmResendOpen}
-                    onClose={e => this.handleCloseConfirmResend(e, false)}
-                >
-                    <DialogTitle>Reenvio de notificação</DialogTitle>
+                            <Button onClick={e => this.handleCloseConfirmDelete(e, true)} color="primary">
+                                Apagar
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
 
-                    <DialogContent>
-                        <DialogContentText>
-                            Deseja enviar novamente a notificação via SMS/E-mail?
-                        </DialogContentText>
-                    </DialogContent>
+                    <Dialog
+                        open={dialogConfirmResendOpen}
+                        onClose={e => this.handleCloseConfirmResend(e, false)}
+                    >
+                        <DialogTitle>Reenvio de notificação</DialogTitle>
 
-                    <DialogActions>
-                        <Button onClick={e => this.handleCloseConfirmResend(e, false)} color="primary">
-                            Cancelar
-                        </Button>
+                        <DialogContent>
+                            <DialogContentText>
+                                Deseja enviar novamente a notificação via SMS/E-mail?
+                            </DialogContentText>
+                        </DialogContent>
 
-                        <Button onClick={e => this.handleCloseConfirmResend(e, true)} color="primary">
-                            Reenviar
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            </div>
+                        <DialogActions>
+                            <Button onClick={e => this.handleCloseConfirmResend(e, false)} color="primary">
+                                Cancelar
+                            </Button>
+
+                            <Button onClick={e => this.handleCloseConfirmResend(e, true)} color="primary">
+                                Reenviar
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+                </div>
+            </React.Fragment>
         )
     }
 }
